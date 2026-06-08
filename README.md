@@ -1,15 +1,14 @@
-# coastal-alpine-core: Edge AI Shared Utilities
+# Coastal Alpine Core
+![SecOps Scan](https://img.shields.io/github/actions/workflow/status/fivepanelhat/coastal-alpine-stack/redteam.yml?branch=main&label=SecOps%20Scan&style=flat-square&color=success) ![License](https://img.shields.io/badge/License-Proprietary--Commercial-blue?style=flat-square) ![Data Sovereignty](https://img.shields.io/badge/Sovereignty-NZ%20Data%20Bound-00247D?style=flat-square)
 
 ![coastal-alpine-core Banner](assets/social_preview.png)
 
 **Coastal Alpine Tech Limited**  
 *Edge AI | Sovereign Systems | Practical Intelligence*
 
-[![License](https://img.shields.io/badge/License-Proprietary--Commercial-blue?style=flat-square)](LICENSE)  
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)  
 [![Hardware Target](https://img.shields.io/badge/Hardware-Raspberry%20Pi%205%2016GB-C11A5B?style=flat-square&logo=raspberry-pi&logoColor=white)]()  
 [![Hardware: Edge AI](https://img.shields.io/badge/Hardware-Raspberry%20Pi%205%20%2B%20Hailo--10L%2F10H%20NPU-orange.svg)]()  
-[![Sovereignty](https://img.shields.io/badge/Sovereignty-NZ%20Data%20Bound-00247D?style=flat-square)]()  
 [![CI](https://github.com/fivepanelhat/coastal-alpine-core/actions/workflows/ci.yml/badge.svg)](https://github.com/fivepanelhat/coastal-alpine-core/actions)  
 [![SecOps Scan](https://img.shields.io/github/actions/workflow/status/fivepanelhat/coastal-alpine-core/security-scan.yml?branch=main&label=SecOps%20Scan&style=flat-square&color=success)](https://github.com/fivepanelhat/coastal-alpine-core/actions/workflows/security-scan.yml)  
 [![Dependabot](https://img.shields.io/badge/Dependencies-Monitored-brightgreen?style=flat-square&logo=dependabot)]()  
