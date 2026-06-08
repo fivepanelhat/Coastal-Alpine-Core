@@ -1,0 +1,47 @@
+name: Publish Sovereign Core Packages
+
+on:
+  push:
+    tags:
+      - 'v*.*.*' # Only triggers when you push a version tag, e.g., v1.0.2
+
+jobs:
+  publish-npm:
+    name: Publish Node Package for Portals
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          registry-url: 'https://npm.pkg.github.com'
+          scope: '@fivepanelhat'
+      - run: npm ci
+      - run: npm run build --if-present
+      - run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  publish-python:
+    name: Publish Python Wheel for Edge Nodes
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install build tools
+        run: python -m pip install --upgrade pip build twine
+      - name: Build Wheel
+        run: python -m build
+      - name: Publish to GitHub Packages (PyPI)
+        env:
+          TWINE_USERNAME: ${{ github.actor }}
+          TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
+        run: twine upload --repository-url https://nuget.pkg.github.com/fivepanelhat/index.json dist/*
