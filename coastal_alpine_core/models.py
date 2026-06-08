@@ -1,7 +1,7 @@
 import time
 import logging
 from typing import Dict, Any, List, Optional
-import requests
+import requests  # type: ignore
 
 logger = logging.getLogger("CoastalAlpineCore.OllamaClient")
 
