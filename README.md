@@ -9,7 +9,7 @@
 [![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue.svg)](https://www.python.org/)  
 [![Hardware Target](https://img.shields.io/badge/Hardware-Raspberry%20Pi%205%2016GB-C11A5B?style=flat-square&logo=raspberry-pi&logoColor=white)]()  
 [![Hardware: Edge AI](https://img.shields.io/badge/Hardware-Raspberry%20Pi%205%20%2B%20Hailo--10L%2F10H%20NPU-orange.svg)]()  
-[![Sovereignty: Offline Native](https://img.shields.io/badge/Sovereignty-Offline%20Native-green.svg)]()  
+[![Sovereignty](https://img.shields.io/badge/Sovereignty-NZ%20Data%20Bound-00247D?style=flat-square)]()  
 [![CI](https://github.com/fivepanelhat/coastal-alpine-core/actions/workflows/ci.yml/badge.svg)](https://github.com/fivepanelhat/coastal-alpine-core/actions)  
 [![SecOps Scan](https://img.shields.io/github/actions/workflow/status/fivepanelhat/coastal-alpine-core/security-scan.yml?branch=main&label=SecOps%20Scan&style=flat-square&color=success)](https://github.com/fivepanelhat/coastal-alpine-core/actions/workflows/security-scan.yml)  
 [![Dependabot](https://img.shields.io/badge/Dependencies-Monitored-brightgreen?style=flat-square&logo=dependabot)]()
