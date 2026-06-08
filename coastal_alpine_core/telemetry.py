@@ -32,7 +32,7 @@ class TelemetryTracker:
         tokens_per_sec = (token_count / duration) if token_count > 0 and duration > 0 else 0.0
         
         # Estimate power consumption (Watts * hours) based on theoretical edge performance:
-        # RPi 5 peak under load is ~8-10W. Hailo-8L peak is ~2.5W.
+        # RPi 5 peak under load is ~8-10W. Hailo-10L NPU peak is ~2.5W.
         base_power = 8.0 if device == "RPi5" else 5.0
         active_power = base_power + (2.5 if "NPU" in device or "hailo" in device.lower() else 1.5)
         energy_used_joules = active_power * duration

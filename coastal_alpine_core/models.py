@@ -1,6 +1,14 @@
 import time
 import logging
-from typing import Dict, Any, List, Optional
+from typing import Dict, Any, List, Optional, TypedDict
+
+class GeneratePayload(TypedDict, total=False):
+    model: str
+    prompt: str
+    stream: bool
+    system: str
+    options: Dict[str, Any]
+
 import requests  # type: ignore
 
 logger = logging.getLogger("CoastalAlpineCore.OllamaClient")
@@ -30,7 +38,7 @@ class SovereignOllamaClient:
         """
         active_model = model or self.default_model
         url = f"{self.host}/api/generate"
-        payload = {
+        payload: GeneratePayload = {
             "model": active_model,
             "prompt": prompt,
             "stream": False
