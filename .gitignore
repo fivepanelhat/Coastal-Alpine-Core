@@ -32,3 +32,14 @@ env/
 # IDE files
 .vscode/
 .idea/
+
+# Coastal Alpine Tech - CORE SecOps
+# The Core MUST remain stateless and secret-free.
+.env
+.env.*
+secrets/
+.secrets.baseline
+tls-certs/
+*.pem
+*.key
+
