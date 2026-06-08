@@ -1,6 +1,6 @@
 {
   "name": "@fivepanelhat/coastal-alpine-core",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "Sovereign Stack Shared Core Models and Auth Logic",
   "main": "dist/index.js",
   "repository": {

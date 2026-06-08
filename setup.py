@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="coastal-alpine-core",
-    version="1.0.0",
+    version="1.2.0",
     description="Shared utilities for Coastal Alpine Tech edge agentic AI stack",
     author="Wayne Roberts, Coastal Alpine Tech",
     packages=find_packages(),
