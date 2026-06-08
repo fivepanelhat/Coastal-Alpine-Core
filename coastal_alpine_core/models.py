@@ -11,7 +11,7 @@ class SovereignOllamaClient:
     Handles network dropouts and model loads with automated retries.
     """
     
-    def __init__(self, host: str = "http://localhost:11434", default_model: str = "gemma4:latest"):
+    def __init__(self, host: str = "http://localhost:11434", default_model: str = "gemma4:e4b"):
         self.host = host.rstrip('/')
         self.default_model = default_model
         
