@@ -5,6 +5,7 @@ coastal-alpine-core: Shared utilities for Taranaki-based Coastal Alpine Tech Edg
 from .telemetry import TelemetryTracker, log_performance
 from .models import SovereignOllamaClient
 from .security import input_guard_check, tenant_isolated_query
+from . import analytics
 
 __all__ = [
     "TelemetryTracker",
@@ -12,4 +13,6 @@ __all__ = [
     "SovereignOllamaClient",
     "input_guard_check",
     "tenant_isolated_query",
+    "analytics",
 ]
+
