@@ -2,7 +2,7 @@
 const crypto = require('crypto');
 
 // The "Golden Baseline" - The exact expected SHA-256 hash digests of a clean, un-tampered Pi 5 boot sequence
-const GOLDEN_PCR_DIGEST = "a3f5b7c890de1234567890abcdef1234567890abcdef1234567890abcdef1234"; 
+const GOLDEN_PCR_DIGEST = "a3f5b7c890de1234567890abcdef1234567890abcdef1234567890abcdef1234"; // pragma: allowlist secret
 
 /**
  * Validates a node's TPM 2.0 quote payload against the hardware Root of Trust.

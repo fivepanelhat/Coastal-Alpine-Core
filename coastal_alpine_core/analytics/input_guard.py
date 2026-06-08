@@ -3,8 +3,8 @@ import math
 
 # Registered cryptographic baselines for authorized edge hardware profiles
 VALID_FIRMWARE_HASHES = {
-    "ESP32_MANAKAI_SOIL": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
-    "PI5_STING_VISION": "7f83b1657ff1fc53b92c48da1bf5553d684d054611ba4f1f4d9240d8bf1b3a1a"
+    "ESP32_MANAKAI_SOIL": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855", # pragma: allowlist secret
+    "PI5_STING_VISION": "7f83b1657ff1fc53b92c48da1bf5553d684d054611ba4f1f4d9240d8bf1b3a1a" # pragma: allowlist secret
 }
 
 # In-memory rolling telemetry cache to calculate statistical anomalies (sliding window)
