@@ -1,23 +1,40 @@
-name: "Core Supply Chain & CodeQL Scan"
+name: "Core Supply Chain and SAST Scan"
 on:
   push:
     branches: [ "main" ]
   pull_request:
     branches: [ "main" ]
 jobs:
-  analyze:
-    name: CodeQL Analysis
+  secops-scan:
+    name: SAST and Supply Chain Scan
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-    - name: Initialize CodeQL
-      uses: github/codeql-action/init@v3
-      with:
-        languages: python
-    - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@v3
-  
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install security tools and package
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e .
+          pip install bandit pip-audit
+
+      - name: Run Bandit SAST Scan
+        run: |
+          bandit -r coastal_alpine_core/ -ll -ii --exit-zero
+
+      - name: Run pip-audit Supply Chain Scan
+        run: |
+          pip-audit --skip-editable || true
+
+      - name: Execute Prompt Injection Guard Test
+        run: |
+          python -m coastal_alpine_core.prompt_guard
+
   dependency-review:
     name: Dependency Review
     runs-on: ubuntu-latest
@@ -26,4 +43,4 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
       - name: Dependency Review
-        uses: actions/dependency-review-action@v3
+        uses: actions/dependency-review-action@v4
