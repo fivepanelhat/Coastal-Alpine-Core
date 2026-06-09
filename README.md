@@ -1,5 +1,5 @@
 # Coastal Alpine Core
-![SecOps Scan](https://img.shields.io/github/actions/workflow/status/fivepanelhat/coastal-alpine-stack/redteam.yml?branch=main&label=SecOps%20Scan&style=flat-square&color=success) ![License](https://img.shields.io/badge/License-Proprietary--Commercial-blue?style=flat-square) ![Data Sovereignty](https://img.shields.io/badge/Sovereignty-NZ%20Data%20Bound-00247D?style=flat-square)
+![SecOps Scan](https://img.shields.io/github/actions/workflow/status/fivepanelhat/coastal-alpine-stack/secops.yml?branch=main&label=SecOps%20Scan&style=flat-square&color=success) ![License](https://img.shields.io/badge/License-Proprietary--Commercial-blue?style=flat-square) ![Data Sovereignty](https://img.shields.io/badge/Sovereignty-NZ%20Data%20Bound-00247D?style=flat-square)
 
 ![coastal-alpine-core Banner](assets/social_preview.png)
 
@@ -10,7 +10,7 @@
 [![Hardware Target](https://img.shields.io/badge/Hardware-Raspberry%20Pi%205%2016GB-C11A5B?style=flat-square&logo=raspberry-pi&logoColor=white)]()  
 [![Hardware: Edge AI](https://img.shields.io/badge/Hardware-Raspberry%20Pi%205%20%2B%20Hailo--10L%2F10H%20NPU-orange.svg)]()  
 [![CI](https://github.com/fivepanelhat/coastal-alpine-core/actions/workflows/ci.yml/badge.svg)](https://github.com/fivepanelhat/coastal-alpine-core/actions)  
-[![SecOps Scan](https://img.shields.io/github/actions/workflow/status/fivepanelhat/coastal-alpine-core/security-scan.yml?branch=main&label=SecOps%20Scan&style=flat-square&color=success)](https://github.com/fivepanelhat/coastal-alpine-core/actions/workflows/security-scan.yml)  
+[![SecOps Scan](https://img.shields.io/github/actions/workflow/status/fivepanelhat/coastal-alpine-core/secops.yml?branch=main&label=SecOps%20Scan&style=flat-square&color=success)](https://github.com/fivepanelhat/coastal-alpine-core/actions/workflows/secops.yml)  
 [![Dependabot](https://img.shields.io/badge/Dependencies-Monitored-brightgreen?style=flat-square&logo=dependabot)]()  
 [![Sustainability](https://img.shields.io/badge/EECA%20NZ-Carbon%20Tracked-green?style=flat-square)]()
 
