@@ -1,4 +1,7 @@
 # Coastal Alpine Core
+
+![CI](https://github.com/UNKNOWN_OWNER/coastal_alpine_core/actions/workflows/secops.yml/badge.svg?branch=main)
+
 ![SecOps Scan](https://img.shields.io/github/actions/workflow/status/fivepanelhat/coastal-alpine-stack/secops.yml?branch=main&label=SecOps%20Scan&style=flat-square&color=success) ![License](https://img.shields.io/badge/License-Proprietary--Commercial-blue?style=flat-square) ![Data Sovereignty](https://img.shields.io/badge/Sovereignty-NZ%20Data%20Bound-00247D?style=flat-square)
 
 ![coastal-alpine-core Banner](assets/social_preview.png)
