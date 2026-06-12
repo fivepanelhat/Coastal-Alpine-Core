@@ -34,7 +34,7 @@ def input_guard_check(prompt: str) -> bool:
     return True
 
 
-def tenant_isolated_query(query_tenant_id: int, active_tenant_id: int) -> bool:
+def tenant_isolated_query(query_tenant_id: str, active_tenant_id: str) -> bool:
     """
     Enforces strict tenant scoping checks at the service layer to prevent tenant cross-contamination.
     Returns:
