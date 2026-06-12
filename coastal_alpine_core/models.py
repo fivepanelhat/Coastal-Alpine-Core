@@ -1,6 +1,7 @@
 import time
 import logging
-from typing import Dict, Any, List, Optional, TypedDict
+from typing import Dict, Any, Optional, TypedDict
+
 
 class GeneratePayload(TypedDict, total=False):
     model: str
@@ -9,20 +10,26 @@ class GeneratePayload(TypedDict, total=False):
     system: str
     options: Dict[str, Any]
 
+
 import requests  # type: ignore
 
 logger = logging.getLogger("CoastalAlpineCore.OllamaClient")
+
 
 class SovereignOllamaClient:
     """
     Robust connection wrapper for local offline Ollama SLM deployments.
     Handles network dropouts and model loads with automated retries.
     """
-    
-    def __init__(self, host: str = "http://localhost:11434", default_model: str = "gemma4:e4b"):
-        self.host = host.rstrip('/')
+
+    def __init__(
+        self,
+        host: str = "http://localhost:11434",
+        default_model: str = "gemma4:e4b",
+    ):
+        self.host = host.rstrip("/")
         self.default_model = default_model
-        
+
     def check_health(self) -> bool:
         """Checks if the local Ollama server is responsive."""
         try:
@@ -31,8 +38,15 @@ class SovereignOllamaClient:
         except Exception:
             return False
 
-    def generate(self, prompt: str, model: Optional[str] = None, system: Optional[str] = None, 
-                 options: Optional[Dict[str, Any]] = None, retries: int = 3, backoff: float = 1.0) -> Dict[str, Any]:
+    def generate(
+        self,
+        prompt: str,
+        model: Optional[str] = None,
+        system: Optional[str] = None,
+        options: Optional[Dict[str, Any]] = None,
+        retries: int = 3,
+        backoff: float = 1.0,
+    ) -> Dict[str, Any]:
         """
         Generates completion with exponential backoff retry. Falls back to mock responses if completely offline.
         """
@@ -41,7 +55,7 @@ class SovereignOllamaClient:
         payload: GeneratePayload = {
             "model": active_model,
             "prompt": prompt,
-            "stream": False
+            "stream": False,
         }
         if system:
             payload["system"] = system
@@ -54,16 +68,22 @@ class SovereignOllamaClient:
                 if response.status_code == 200:
                     return response.json()
                 else:
-                    logger.warning(f"Ollama returned status {response.status_code}. Attempt {attempt + 1}/{retries}")
+                    logger.warning(
+                        f"Ollama returned status {response.status_code}. Attempt {attempt + 1}/{retries}"
+                    )
             except requests.RequestException as e:
-                logger.warning(f"Failed connecting to local Ollama on attempt {attempt + 1}/{retries}: {e}")
-            
+                logger.warning(
+                    f"Failed connecting to local Ollama on attempt {attempt + 1}/{retries}: {e}"
+                )
+
             if attempt < retries - 1:
-                sleep_time = backoff * (2 ** attempt)
+                sleep_time = backoff * (2**attempt)
                 logger.info(f"Retrying in {sleep_time} seconds...")
                 time.sleep(sleep_time)
 
-        logger.error("All local Ollama retries exhausted. Providing local deterministic fallback response.")
+        logger.error(
+            "All local Ollama retries exhausted. Providing local deterministic fallback response."
+        )
         return self._fallback_response(prompt, active_model)
 
     def _fallback_response(self, prompt: str, model: str) -> Dict[str, Any]:
@@ -85,5 +105,5 @@ class SovereignOllamaClient:
             "total_duration": 1000000,
             "load_duration": 10000,
             "prompt_eval_count": len(prompt.split()),
-            "eval_count": len(fallback_text.split())
+            "eval_count": len(fallback_text.split()),
         }

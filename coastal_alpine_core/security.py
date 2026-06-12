@@ -1,12 +1,12 @@
 import re
 import logging
-from typing import Dict, Any, List
 
 logger = logging.getLogger("CoastalAlpineCore.Security")
 
+
 def input_guard_check(prompt: str) -> bool:
     """
-    Scans incoming prompts for potential prompt injections, local file access attempts, 
+    Scans incoming prompts for potential prompt injections, local file access attempts,
     or common SQL injection patterns.
     Returns:
         True if the prompt is safe.
@@ -21,15 +21,18 @@ def input_guard_check(prompt: str) -> bool:
         r"(?i)union select",
         r"etc/passwd",
         r"C:\\Windows\\system32",
-        r"(?i)\bformat c:\b"
+        r"(?i)\bformat c:\b",
     ]
-    
+
     for pattern in injection_patterns:
         if re.search(pattern, prompt):
-            logger.warning(f"Security Alert: Malicious prompt pattern detected: '{pattern}'")
+            logger.warning(
+                f"Security Alert: Malicious prompt pattern detected: '{pattern}'"
+            )
             return False
-            
+
     return True
+
 
 def tenant_isolated_query(query_tenant_id: int, active_tenant_id: int) -> bool:
     """
