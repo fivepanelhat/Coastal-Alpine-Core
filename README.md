@@ -1,9 +1,5 @@
 # Coastal Alpine Core
 
-![CI](https://github.com/fivepanelhat/Coastal-Alpine-Core.git
-/actions/workflows/secops.yml/badge.svg?branch=main)
-
-
 ![CI](https://github.com/fivepanelhat/coastal-alpine-core/actions/workflows/secops.yml/badge.svg?branch=main)
 
 ![SecOps Scan](https://img.shields.io/github/actions/workflow/status/fivepanelhat/coastal-alpine-core/secops.yml?branch=main&label=SecOps%20Scan&style=flat-square&color=success) ![License](https://img.shields.io/badge/License-Proprietary--Commercial-blue?style=flat-square) ![Data Sovereignty](https://img.shields.io/badge/Sovereignty-NZ%20Data%20Bound-00247D?style=flat-square)
@@ -35,7 +31,33 @@ Shared python utility package designed for Taranaki-based Coastal Alpine Tech Ed
 
 ## Installation
 
-To install the library as an editable local package:
+First, set up a Python virtual environment:
+
+<details open>
+<summary><strong>🐧 Linux / macOS (Bash)</strong></summary>
+
+```bash
+python3 -m venv venv
+source venv/bin/activate
+```
+
+</details>
+
+<details>
+<summary><strong>🪟 Windows (PowerShell)</strong></summary>
+
+```powershell
+python -m venv venv
+.\venv\Scripts\Activate.ps1
+```
+
+> **Note:** If you receive an execution policy error, run `Set-ExecutionPolicy -Scope CurrentUser RemoteSigned` first.
+
+</details>
+
+Then install the library (these commands work on all platforms):
+
+To install as an editable local package:
 ```bash
 pip install -e .
 ```
