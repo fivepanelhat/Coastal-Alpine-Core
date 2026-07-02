@@ -2,7 +2,7 @@ name: "Verify after core update"
 description: "Install latest core and run portal tests"
 
 inputs:
-  core-version:
+  core-ref:
     description: "Core version to pin (e.g. v0.3.0)"
     required: true
 
@@ -12,7 +12,7 @@ runs:
     - name: Install core
       shell: bash
       run: |
-        pip install "coastal-alpine-core @ git+https://github.com/fivepanelhat/coastal-alpine-core.git@${{ inputs.core-version }}"
+        pip install "coastal-alpine-core @ git+https://github.com/fivepanelhat/coastal-alpine-core.git@${{ inputs.core-ref }}"
 
     - name: Run tests
       shell: bash
