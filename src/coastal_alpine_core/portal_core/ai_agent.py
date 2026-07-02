@@ -9,9 +9,8 @@ from typing import Any
 from pydantic import BaseModel, Field
 
 from coastal_alpine_core import SovereignOllamaClient
-from coastal_alpine_core.flywheel import DataFlywheel, Trajectory
 from coastal_alpine_core.security import SecurityGuard, SecurityResult
-from coastal_alpine_core.telemetry import TelemetryTracker
+from coastal_alpine_core.telemetry import DataFlywheel, TelemetryTracker, Trajectory
 
 logger = logging.getLogger(__name__)
 security_guard = SecurityGuard()
