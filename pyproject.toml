@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "coastal-alpine-core"
 version = "0.3.0"
-description = "Sovereign Stack Shared Core Models and Auth Logic"
+description = "Shared edge AI SDK for the Kiwi Stack — offline Ollama wrapper, prompt security guard, hardware telemetry, and shared portal framework"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Proprietary" }
@@ -24,9 +24,17 @@ Repository = "https://github.com/fivepanelhat/coastal-alpine-core"
 
 [project.optional-dependencies]
 dev = [
-    "pytest>=7.4.0",
-    "pytest-asyncio>=0.23.0"
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.4.0",
 ]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.ruff]
+extend = "ruff.toml"
 
 [tool.pytest.ini_options]
 asyncio_mode = "auto"
+testpaths = ["tests"]
