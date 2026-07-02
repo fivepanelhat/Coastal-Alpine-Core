@@ -64,7 +64,7 @@ pip install -e .
 
 To install directly from GitHub (as used across all stack portals):
 ```bash
-pip install git+https://github.com/fivepanelhat/coastal-alpine-core.git
+pip install git+https://github.com/fivepanelhat/coastal-alpine-core.git@v0.2.0
 ```
 
 ---
