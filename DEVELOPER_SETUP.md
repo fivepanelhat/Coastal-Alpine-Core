@@ -1,18 +1,18 @@
-# Developer Setup — Coastal Alpine Stack
+# Developer Setup — Coastal Alpine Stack (Internal)
 
 ## Prerequisites
 - Python 3.11+
-- uv (recommended) or pip
-- Git
+- uv (recommended)
 
-## Quick Start (Core)
+## Setup
 
 ```bash
-git clone https://github.com/fivepanelhat/coastal-alpine-core.git
-cd coastal-alpine-core
+# Clone the workspace root (recommended)
+git clone https://github.com/fivepanelhat/coastal-alpine-stack.git
+cd coastal-alpine-stack
 
-# At the root of your coastal-alpine-stack folder
 uv sync
+cd coastal-alpine-core
 uv run pytest
 ruff check .
 ruff format .
