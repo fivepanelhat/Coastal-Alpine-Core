@@ -1,7 +1,6 @@
-import re
 import logging
+import re
 from dataclasses import dataclass
-from typing import List, Optional
 
 logger = logging.getLogger("CoastalAlpineCore.Security")
 
@@ -9,9 +8,10 @@ logger = logging.getLogger("CoastalAlpineCore.Security")
 @dataclass
 class SecurityResult:
     """Rich result for security checks to support audit logging and flywheel training."""
+
     is_safe: bool
     reason: str = ""
-    matched_pattern: Optional[str] = None
+    matched_pattern: str | None = None
     severity: str = "low"  # low, medium, high
 
 
@@ -21,7 +21,7 @@ class SecurityGuard:
     Returns structured SecurityResult for better observability and future ML training (flywheel).
     """
 
-    DEFAULT_PATTERNS: List[str] = [
+    DEFAULT_PATTERNS: list[str] = [
         r"(?i)\bignore previous instructions\b",
         r"(?i)\bsystem prompt\b",
         r"(?i)\bdelete from\b",
@@ -33,7 +33,7 @@ class SecurityGuard:
         r"(?i)\brm -rf\b",
     ]
 
-    def __init__(self, custom_patterns: Optional[List[str]] = None):
+    def __init__(self, custom_patterns: list[str] | None = None):
         self.patterns = custom_patterns or self.DEFAULT_PATTERNS
 
     def check_prompt(self, prompt: str) -> SecurityResult:

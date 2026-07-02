@@ -1,8 +1,9 @@
-import logging
 import asyncio
+import logging
 from typing import Any
 
 logger = logging.getLogger(__name__)
+
 
 class AVCapture:
     """Unified Audio/Video Capture Module for Coastal Alpine Portals."""
@@ -32,9 +33,9 @@ class AVCapture:
 
     def start_audio_stream(self) -> bool:
         return True
-        
+
     def stop(self):
         pass
-        
+
     async def health_check(self) -> bool:
         return True

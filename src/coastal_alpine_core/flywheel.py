@@ -8,9 +8,10 @@ import json
 import logging
 import time
 import uuid
-from dataclasses import dataclass, asdict, field
+from collections.abc import Callable
+from dataclasses import asdict, dataclass, field
 from pathlib import Path
-from typing import Any, Dict, List, Optional, Callable
+from typing import Any
 
 logger = logging.getLogger("CoastalAlpineCore.Flywheel")
 
@@ -25,14 +26,14 @@ class Trajectory:
     outcome: str
     latency_seconds: float
     estimated_energy_joules: float
-    system_metrics: Dict[str, Any] = field(default_factory=dict)
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    human_feedback: Optional[str] = None
-    quality_score: Optional[float] = None
+    system_metrics: dict[str, Any] = field(default_factory=dict)
+    metadata: dict[str, Any] = field(default_factory=dict)
+    human_feedback: str | None = None
+    quality_score: float | None = None
 
 
 class DataFlywheel:
-    _instances: Dict[str, "DataFlywheel"] = {}  # Simple tenant-aware singleton
+    _instances: dict[str, "DataFlywheel"] = {}  # Simple tenant-aware singleton
 
     def __new__(cls, storage_path: str = "flywheel_trajectories.jsonl"):
         if storage_path not in cls._instances:
@@ -40,7 +41,7 @@ class DataFlywheel:
         return cls._instances[storage_path]
 
     def __init__(self, storage_path: str = "flywheel_trajectories.jsonl"):
-        if hasattr(self, '_initialized'):
+        if hasattr(self, "_initialized"):
             return
         self.storage_path = Path(storage_path)
         self.storage_path.parent.mkdir(parents=True, exist_ok=True)
@@ -63,23 +64,27 @@ class DataFlywheel:
             outcome=outcome,
             latency_seconds=kwargs.get("latency_seconds", 0.0),
             estimated_energy_joules=kwargs.get("energy_joules", 0.0),
-            metadata=kwargs.get("metadata", {"plan_id": plan_id})
+            metadata=kwargs.get("metadata", {"plan_id": plan_id}),
         )
         self.record_trajectory(traj)
 
-    def update_with_human_feedback(self, original_trajectory_id: str, feedback: str, new_outcome: str = "human_corrected"):
+    def update_with_human_feedback(
+        self, original_trajectory_id: str, feedback: str, new_outcome: str = "human_corrected"
+    ):
         self.update_trajectory_with_feedback(original_trajectory_id, feedback, new_outcome)
 
     # ... (rest of the methods: get_recent_trajectories, curate_golden_set, evaluate_trajectory remain the same)
 
-    def get_recent_trajectories(self, limit: int = 100) -> List[Trajectory]:
+    def get_recent_trajectories(self, limit: int = 100) -> list[Trajectory]:
         # implementation as before
         pass
 
-    def curate_golden_set(self, min_quality: float = 0.7) -> List[Trajectory]:
+    def curate_golden_set(self, min_quality: float = 0.7) -> list[Trajectory]:
         # implementation as before
         pass
 
-    def evaluate_trajectory(self, trajectory: Trajectory, llm_judge_func: Optional[Callable] = None) -> float:
+    def evaluate_trajectory(
+        self, trajectory: Trajectory, llm_judge_func: Callable | None = None
+    ) -> float:
         # implementation as before
         pass

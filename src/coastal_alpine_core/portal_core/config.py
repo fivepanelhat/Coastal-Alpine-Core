@@ -4,12 +4,12 @@ portal_core/config.py - Unified Configuration Module for Coastal Alpine Portals.
 Validates and loads environmental settings, sensor thresholds, hardware control maps, and consent metrics for AquaGuard, SoilGuard, and BlueMoon portals.
 """
 
-import os
 import logging
+import os
 from pathlib import Path
-from typing import Optional
-from pydantic import BaseModel, Field, field_validator, ConfigDict
+
 from dotenv import load_dotenv
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +33,8 @@ class MQTTConfig(BaseModel):
 
     broker: str = Field(default="localhost")
     port: int = Field(default=1883, ge=1, le=65535)
-    username: Optional[str] = Field(default=None)
-    password: Optional[str] = Field(default=None)
+    username: str | None = Field(default=None)
+    password: str | None = Field(default=None)
     topic_prefix: str = Field(default="portal/sensors")
 
 
@@ -81,7 +81,7 @@ class LoggingConfig(BaseModel):
     """Daemon logging profiles."""
 
     level: str = Field(default="INFO")
-    file: Optional[Path] = Field(default=None)
+    file: Path | None = Field(default=None)
 
     @field_validator("level", mode="before")
     @classmethod
@@ -96,16 +96,19 @@ class LoggingConfig(BaseModel):
 # AquaGuard Portal Configurations
 # =====================================================================
 
+
 class AquaGuardHardwareConfig(BaseModel):
-    aerator_gpio_pin: Optional[int] = Field(default=None)
-    pump_gpio_pin: Optional[int] = Field(default=None)
-    valve_gpio_pin: Optional[int] = Field(default=None)
-    alert_gpio_pin: Optional[int] = Field(default=None)
+    aerator_gpio_pin: int | None = Field(default=None)
+    pump_gpio_pin: int | None = Field(default=None)
+    valve_gpio_pin: int | None = Field(default=None)
+    alert_gpio_pin: int | None = Field(default=None)
     enable_hardware_control: bool = Field(default=False)
+
 
 class AquaGuardConsentConfig(BaseModel):
     regional_council: str = Field(default="Horizons Regional Council")
     consent_id: str = Field(default="CONSENT-2026-AUTH-0981")
+
 
 class AquaGuardThresholdConfig(BaseModel):
     ph_min: float = Field(default=6.5, ge=0.0, le=14.0)
@@ -114,6 +117,7 @@ class AquaGuardThresholdConfig(BaseModel):
     temp_max: float = Field(default=24.0, ge=0.0)
     turbidity_max: float = Field(default=50.0, ge=0.0)
     nitrate_max: float = Field(default=10.0, ge=0.0)
+
 
 class AquaGuardConfig(BaseModel):
     ollama: OllamaConfig
@@ -125,6 +129,7 @@ class AquaGuardConfig(BaseModel):
     consent: AquaGuardConsentConfig
     thresholds: AquaGuardThresholdConfig
     logging: LoggingConfig
+
 
 def load_aquaguard_config() -> AquaGuardConfig:
     env_file = Path(".env")
@@ -167,7 +172,8 @@ def load_aquaguard_config() -> AquaGuardConfig:
                 pump_gpio_pin=int(p) if (p := os.getenv("HARDWARE_PUMP_GPIO_PIN")) else None,
                 valve_gpio_pin=int(p) if (p := os.getenv("HARDWARE_VALVE_GPIO_PIN")) else None,
                 alert_gpio_pin=int(p) if (p := os.getenv("HARDWARE_ALERT_GPIO_PIN")) else None,
-                enable_hardware_control=os.getenv("HARDWARE_ENABLE_CONTROL", "false").lower() == "true",
+                enable_hardware_control=os.getenv("HARDWARE_ENABLE_CONTROL", "false").lower()
+                == "true",
             ),
             consent=AquaGuardConsentConfig(
                 regional_council=os.getenv("REGIONAL_COUNCIL", "Horizons Regional Council"),
@@ -191,20 +197,24 @@ def load_aquaguard_config() -> AquaGuardConfig:
         logger.error(f"Failed loading / validating configuration parameters: {e}")
         raise
 
+
 # =====================================================================
 # SoilGuard Portal Configurations
 # =====================================================================
 
+
 class SoilGuardHardwareConfig(BaseModel):
-    irrigation_gpio_pin: Optional[int] = Field(default=None)
-    nutrient_gpio_pin: Optional[int] = Field(default=None)
-    fan_gpio_pin: Optional[int] = Field(default=None)
-    alert_gpio_pin: Optional[int] = Field(default=None)
+    irrigation_gpio_pin: int | None = Field(default=None)
+    nutrient_gpio_pin: int | None = Field(default=None)
+    fan_gpio_pin: int | None = Field(default=None)
+    alert_gpio_pin: int | None = Field(default=None)
     enable_hardware_control: bool = Field(default=False)
+
 
 class SoilGuardConsentConfig(BaseModel):
     regional_council: str = Field(default="Waikato Regional Council")
     consent_id: str = Field(default="CONSENT-2026-SOIL-1992")
+
 
 class SoilGuardThresholdConfig(BaseModel):
     moisture_min: float = Field(default=15.0, ge=0.0)
@@ -217,6 +227,7 @@ class SoilGuardThresholdConfig(BaseModel):
     ph_min: float = Field(default=5.5, ge=0.0, le=14.0)
     ph_max: float = Field(default=7.5, ge=0.0, le=14.0)
 
+
 class SoilGuardConfig(BaseModel):
     ollama: OllamaConfig
     mqtt: MQTTConfig
@@ -227,6 +238,7 @@ class SoilGuardConfig(BaseModel):
     consent: SoilGuardConsentConfig
     thresholds: SoilGuardThresholdConfig
     logging: LoggingConfig
+
 
 def load_soilguard_config() -> SoilGuardConfig:
     env_file = Path(".env")
@@ -265,11 +277,16 @@ def load_soilguard_config() -> SoilGuardConfig:
                 chunk_size=int(os.getenv("AUDIO_CHUNK_SIZE", "4096")),
             ),
             hardware=SoilGuardHardwareConfig(
-                irrigation_gpio_pin=int(p) if (p := os.getenv("HARDWARE_IRRIGATION_GPIO_PIN")) else None,
-                nutrient_gpio_pin=int(p) if (p := os.getenv("HARDWARE_NUTRIENT_GPIO_PIN")) else None,
+                irrigation_gpio_pin=int(p)
+                if (p := os.getenv("HARDWARE_IRRIGATION_GPIO_PIN"))
+                else None,
+                nutrient_gpio_pin=int(p)
+                if (p := os.getenv("HARDWARE_NUTRIENT_GPIO_PIN"))
+                else None,
                 fan_gpio_pin=int(p) if (p := os.getenv("HARDWARE_FAN_GPIO_PIN")) else None,
                 alert_gpio_pin=int(p) if (p := os.getenv("HARDWARE_ALERT_GPIO_PIN")) else None,
-                enable_hardware_control=os.getenv("HARDWARE_ENABLE_CONTROL", "false").lower() == "true",
+                enable_hardware_control=os.getenv("HARDWARE_ENABLE_CONTROL", "false").lower()
+                == "true",
             ),
             consent=SoilGuardConsentConfig(
                 regional_council=os.getenv("REGIONAL_COUNCIL", "Waikato Regional Council"),
@@ -296,17 +313,20 @@ def load_soilguard_config() -> SoilGuardConfig:
         logger.error(f"Failed loading / validating configuration parameters: {e}")
         raise
 
+
 # =====================================================================
 # Blue Moon Portal Configurations
 # =====================================================================
 
+
 class BlueMoonHardwareConfig(BaseModel):
-    pump_gpio_pin: Optional[int] = Field(default=None)
+    pump_gpio_pin: int | None = Field(default=None)
     pump_pwm_frequency: int = Field(default=1000, ge=100, le=10000)
-    lighting_gpio_pin: Optional[int] = Field(default=None)
+    lighting_gpio_pin: int | None = Field(default=None)
     lighting_pwm_frequency: int = Field(default=1000, ge=100, le=10000)
-    alert_gpio_pin: Optional[int] = Field(default=None)
+    alert_gpio_pin: int | None = Field(default=None)
     enable_hardware_control: bool = Field(default=False)
+
 
 class PortalConfig(BaseModel):
     ollama: OllamaConfig
@@ -317,6 +337,7 @@ class PortalConfig(BaseModel):
     hardware: BlueMoonHardwareConfig
     logging: LoggingConfig
     model_config = ConfigDict(arbitrary_types_allowed=True)
+
 
 def load_config() -> PortalConfig:
     env_file = Path(".env")
@@ -356,10 +377,15 @@ def load_config() -> PortalConfig:
             hardware=BlueMoonHardwareConfig(
                 pump_gpio_pin=int(p) if (p := os.getenv("HARDWARE_PUMP_GPIO_PIN")) else None,
                 pump_pwm_frequency=int(os.getenv("HARDWARE_PUMP_PWM_FREQUENCY", "1000")),
-                lighting_gpio_pin=int(p) if (p := os.getenv("HARDWARE_LIGHTING_GPIO_PIN")) else None,
+                lighting_gpio_pin=int(p)
+                if (p := os.getenv("HARDWARE_LIGHTING_GPIO_PIN"))
+                else None,
                 lighting_pwm_frequency=int(os.getenv("HARDWARE_LIGHTING_PWM_FREQUENCY", "1000")),
                 alert_gpio_pin=int(p) if (p := os.getenv("HARDWARE_ALERT_GPIO_PIN")) else None,
-                enable_hardware_control=os.getenv("HARDWARE_ENABLE_HARDWARE_CONTROL", "false").lower() == "true",
+                enable_hardware_control=os.getenv(
+                    "HARDWARE_ENABLE_HARDWARE_CONTROL", "false"
+                ).lower()
+                == "true",
             ),
             logging=LoggingConfig(
                 level=os.getenv("LOG_LEVEL", "INFO"),

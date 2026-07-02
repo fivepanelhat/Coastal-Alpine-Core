@@ -1,6 +1,6 @@
-import time
 import logging
-from typing import Any, Dict, Optional, TypedDict
+import time
+from typing import Any, TypedDict
 
 import requests
 
@@ -12,7 +12,7 @@ class GeneratePayload(TypedDict, total=False):
     prompt: str
     stream: bool
     system: str
-    options: Dict[str, Any]
+    options: dict[str, Any]
 
 
 class OllamaResponse(TypedDict, total=False):
@@ -55,9 +55,9 @@ class SovereignOllamaClient:
     def generate(
         self,
         prompt: str,
-        model: Optional[str] = None,
-        system: Optional[str] = None,
-        options: Optional[Dict[str, Any]] = None,
+        model: str | None = None,
+        system: str | None = None,
+        options: dict[str, Any] | None = None,
         retries: int = 3,
         backoff: float = 1.0,
     ) -> OllamaResponse:
@@ -99,7 +99,7 @@ class SovereignOllamaClient:
                 )
 
             if attempt < retries - 1:
-                sleep_time = backoff * (2 ** attempt)
+                sleep_time = backoff * (2**attempt)
                 logger.info(f"Retrying in {sleep_time} seconds...")
                 time.sleep(sleep_time)
 

@@ -1,9 +1,10 @@
-import time
 import functools
 import json
 import logging
+import time
+from collections.abc import Callable, Generator
 from contextlib import contextmanager
-from typing import Any, Callable, Dict, Generator, Optional
+from typing import Any
 
 try:
     import psutil  # Optional for real system metrics
@@ -24,40 +25,44 @@ class TelemetryTracker:
     DEFAULT_NPU_POWER = 2.5
 
     @staticmethod
-    def measure_latency(action_name: str) -> Dict[str, Any]:
+    def measure_latency(action_name: str) -> dict[str, Any]:
         return {"action": action_name, "start": time.perf_counter()}
 
     @staticmethod
-    def _get_system_metrics() -> Dict[str, Any]:
+    def _get_system_metrics() -> dict[str, Any]:
         if psutil is None:
             return {}
         try:
             return {
                 "cpu_percent": psutil.cpu_percent(interval=0.1),
                 "memory_percent": psutil.virtual_memory().percent,
-                "disk_usage_percent": psutil.disk_usage('/').percent,
+                "disk_usage_percent": psutil.disk_usage("/").percent,
             }
         except Exception:
             return {}
 
     @staticmethod
     def complete_measurement(
-        measurement: Dict[str, Any],
+        measurement: dict[str, Any],
         token_count: int = 0,
         device: str = "RPi5",
-        base_power: Optional[Dict[str, float]] = None,
+        base_power: dict[str, float] | None = None,
         include_system_metrics: bool = False,
-    ) -> Dict[str, Any]:
+    ) -> dict[str, Any]:
         duration = time.perf_counter() - measurement["start"]
         tokens_per_sec = (token_count / duration) if token_count > 0 and duration > 0 else 0.0
 
         powers = base_power or TelemetryTracker.DEFAULT_BASE_POWER
         base = powers.get(device, powers.get("default", 5.0))
-        npu_add = TelemetryTracker.DEFAULT_NPU_POWER if "NPU" in device or "hailo" in device.lower() else 0.0
+        npu_add = (
+            TelemetryTracker.DEFAULT_NPU_POWER
+            if "NPU" in device or "hailo" in device.lower()
+            else 0.0
+        )
         active_power = base + npu_add
         energy_joules = active_power * duration
 
-        results: Dict[str, Any] = {
+        results: dict[str, Any] = {
             "action": measurement["action"],
             "duration_seconds": round(duration, 4),
             "tokens_processed": token_count,
@@ -78,7 +83,7 @@ class TelemetryTracker:
     @contextmanager
     def track(
         action_name: str, device: str = "RPi5", include_system_metrics: bool = False
-    ) -> Generator[Dict[str, Any], None, None]:
+    ) -> Generator[dict[str, Any], None, None]:
         measurement = TelemetryTracker.measure_latency(action_name)
         try:
             yield measurement
@@ -99,7 +104,11 @@ def log_performance(action_name: str, device: str = "RPi5"):
                 token_count = len(result.split())
             elif isinstance(result, dict):
                 token_count = len(str(result).split())
-            TelemetryTracker.complete_measurement(measurement, token_count=token_count, device=device)
+            TelemetryTracker.complete_measurement(
+                measurement, token_count=token_count, device=device
+            )
             return result
+
         return wrapper
+
     return decorator

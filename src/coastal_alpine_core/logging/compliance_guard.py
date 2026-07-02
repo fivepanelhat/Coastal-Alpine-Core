@@ -1,12 +1,10 @@
-import os
-import time
 import hashlib
 import json
+import os
+import time
 
 AUDIT_LOG_PATH = "/mnt/sovereign-data/audit/compliance_history.log"
-NZ_EMISSIONS_FACTOR_KWH = (
-    0.13  # Average NZ Grid kg CO2e emission density matrix
-)
+NZ_EMISSIONS_FACTOR_KWH = 0.13  # Average NZ Grid kg CO2e emission density matrix
 
 
 def capture_sustainability_metrics():
@@ -29,9 +27,7 @@ def capture_sustainability_metrics():
     }
 
 
-def commit_compliance_audit_entry(
-    user_id, action, resource_id, security_clearance
-):
+def commit_compliance_audit_entry(user_id, action, resource_id, security_clearance):
     """
     Writes an immutable, sequentially chained audit block to satisfy data governance requirements.
     """
@@ -50,13 +46,10 @@ def commit_compliance_audit_entry(
     # 1. Enforce sequential integrity checking via local file hashing chaining
     if os.path.exists(AUDIT_LOG_PATH):
         try:
-            with open(AUDIT_LOG_PATH, "r") as f:
+            with open(AUDIT_LOG_PATH) as f:
                 last_line = f.readlines()[-1]
-                last_json = json.loads(last_line)
                 # Chain the current log line to the block hash of the previous record
-                log_payload["previous_chain_hash"] = hashlib.sha256(
-                    last_line.encode()
-                ).hexdigest()
+                log_payload["previous_chain_hash"] = hashlib.sha256(last_line.encode()).hexdigest()
         except Exception:
             pass  # Handle initial file blank allocation gracefully
 

@@ -29,9 +29,7 @@ def input_guard_check(device_id, payload):
 
         # Check for impossible process loops (e.g., critical background security daemon missing)
         if "sec_daemon" not in posture.get("running_processes", []):
-            print(
-                f"[SECOPS ANOMALY] Device {device_id} is running in a degraded security posture."
-            )
+            print(f"[SECOPS ANOMALY] Device {device_id} is running in a degraded security posture.")
             return False, "MUTATED_PROCESS_STATE"
 
         # 3. Telemetry Statistical Anomaly Detection (Z-Score)

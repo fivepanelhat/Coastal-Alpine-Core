@@ -1,8 +1,10 @@
 import asyncio
 import logging
-from typing import Callable, Any, Optional
+from collections.abc import Callable
+from typing import Any
 
 logger = logging.getLogger(__name__)
+
 
 class MQTTClient:
     """Unified MQTT Client Module for Coastal Alpine Portals."""
@@ -11,11 +13,11 @@ class MQTTClient:
         self,
         broker: str = "localhost",
         port: int = 1883,
-        username: Optional[str] = None,
-        password: Optional[str] = None,
+        username: str | None = None,
+        password: str | None = None,
         client_id: str = "portal-client",
         topic_prefix: str = "portal/sensors",
-        **kwargs
+        **kwargs,
     ):
         self.broker = kwargs.get("broker_host", broker)
         self.port = kwargs.get("broker_port", port)
@@ -46,7 +48,9 @@ class MQTTClient:
 
     async def connect(self) -> bool:
         """Connect to the MQTT broker."""
-        logger.info(f"Connecting to MQTT broker at {self.broker}:{self.port} (ID: {self.client_id})")
+        logger.info(
+            f"Connecting to MQTT broker at {self.broker}:{self.port} (ID: {self.client_id})"
+        )
         # Simulated connection delay
         await asyncio.sleep(0.5)
         self.connected = True
@@ -64,7 +68,7 @@ class MQTTClient:
         if not self._connected:
             logger.warning(f"Cannot publish to {full_topic}: MQTT not connected")
             return False
-        
+
         logger.debug(f"Published to {full_topic}: {payload[:50]}...")
         # Simulated publish
         await asyncio.sleep(0.05)
@@ -76,7 +80,7 @@ class MQTTClient:
         if not self._connected:
             logger.warning(f"Cannot subscribe to {full_topic}: MQTT not connected")
             return False
-            
+
         self._subscriptions[full_topic] = callback
         logger.info(f"Subscribed to {full_topic}")
         # Simulated subscribe

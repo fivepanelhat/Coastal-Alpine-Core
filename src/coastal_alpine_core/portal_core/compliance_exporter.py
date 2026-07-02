@@ -7,6 +7,7 @@ Exports structured telemetry metrics and actuation histories into council-ready 
 import csv
 import logging
 from pathlib import Path
+
 from portal_schemas.compliance import ComplianceRecord
 
 logger = logging.getLogger(__name__)
@@ -22,9 +23,7 @@ class ComplianceExporter:
     def __init__(self, compliance_dir: str = "./telemetry_data/compliance"):
         self.compliance_dir = Path(compliance_dir)
         self.compliance_dir.mkdir(parents=True, exist_ok=True)
-        logger.info(
-            f"Compliance Exporter active. Directory target: {self.compliance_dir}"
-        )
+        logger.info(f"Compliance Exporter active. Directory target: {self.compliance_dir}")
 
     async def export_record(self, record: ComplianceRecord) -> bool:
         """
@@ -34,7 +33,9 @@ class ComplianceExporter:
         """
         try:
             # 1. Export JSON Record
-            json_filename = f"audit_{record.timestamp.strftime('%Y%m%d_%H%M%S')}_{record.audit_id}.json"
+            json_filename = (
+                f"audit_{record.timestamp.strftime('%Y%m%d_%H%M%S')}_{record.audit_id}.json"
+            )
             json_path = self.compliance_dir / json_filename
 
             if hasattr(record, "model_dump_json"):
@@ -74,12 +75,11 @@ class ComplianceExporter:
                 "pH": "pH",
                 "turbidity": "turbidity_NTU",
                 "dissolved_oxygen": "DO_mgL",
-                "nitrate": "nitrate_mgL"
+                "nitrate": "nitrate_mgL",
             }
             for k, v in record.metrics.items():
                 mapped_key = key_map.get(k, k)
                 row[f"metric_{mapped_key}"] = v
-
 
             headers = list(row.keys())
 
@@ -90,9 +90,7 @@ class ComplianceExporter:
                     writer.writeheader()
                 writer.writerow(row)
 
-            logger.info(
-                f"✓ Compliance Record exported successfully to {csv_filename}"
-            )
+            logger.info(f"✓ Compliance Record exported successfully to {csv_filename}")
             return True
 
         except Exception as e:
