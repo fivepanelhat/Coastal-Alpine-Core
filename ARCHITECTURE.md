@@ -27,3 +27,20 @@
 
 ## Dependency Policy
 All downstream portals should depend on tagged releases of this package only.
+
+## Release & Dependency Flow
+
+1. Changes are made in `coastal-alpine-core`
+2. Version is bumped in `pyproject.toml`
+3. Tag is pushed → GitHub Actions automatically creates a release
+4. Portals are notified via Dependabot and must update their pin
+5. Portal CI runs the verification composite action against the new core version
+
+## Local Development
+
+```bash
+uv sync
+uv run pytest
+ruff check .
+ruff format .
+```
