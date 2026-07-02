@@ -23,12 +23,8 @@ jobs:
         with:
           python-version: "3.11"
 
-      - name: Install uv
-        uses: astral-sh/setup-uv@v3
-
-      - name: Install dependencies
-        run: |
-          uv pip install --system build twine
+      - name: Install build tools
+        run: pip install build twine
 
       - name: Get version
         id: version
@@ -50,10 +46,3 @@ jobs:
           files: |
             dist/*.whl
             dist/*.tar.gz
-
-      - name: Publish to PyPI (optional)
-        if: false   # Enable when ready
-        env:
-          TWINE_USERNAME: __token__
-          TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
-        run: twine upload dist/*

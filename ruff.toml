@@ -10,3 +10,4 @@ known-first-party = ["coastal_alpine_core"]
 
 [format]
 quote-style = "double"
+indent-style = "space"
