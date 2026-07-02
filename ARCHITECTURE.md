@@ -15,17 +15,22 @@ This package is the single shared foundation for Coastal Alpine Tech’s edge AI
 
 ## Versioning & Releases
 - Semantic versioning via `pyproject.toml`
-- Automated releases triggered on push to `main`
-- Portals must pin to tagged versions (e.g. `@v0.3.0`), never `@main`
+- Automated releases triggered on pushed tags (e.g., `v0.4.0`)
+- Portals must pin to tagged versions (e.g. `@v0.4.0`), never `@main`
 
 ## Dependency Policy
 All downstream portals should depend on tagged releases of this package only.
 
 ## Release Process
 1. Make changes and update version in `pyproject.toml`
-2. Push to `main`
-3. GitHub Actions automatically builds and creates a release
-4. Dependabot will open PRs in the portals to update the pin
+2. Push changes to `main`
+3. Tag the release and push the tag:
+   ```bash
+   git tag v0.4.0
+   git push origin v0.4.0
+   ```
+4. GitHub Actions automatically builds and creates a release based on the pushed tag
+5. Dependabot will open PRs in the portals to update the pin
 5. Portal CI will verify against the new core version
 
 ## Local Development
