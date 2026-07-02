@@ -4,13 +4,21 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "coastal-alpine-core"
-dynamic = ["version"]
+version = "0.2.0"
 authors = [
   { name="Wayne Roberts", email="architecture@coastalalpinetech.local" },
 ]
 description = "Sovereign Stack Shared Core Models and Auth Logic"
 requires-python = ">=3.9"
 dependencies = [
-    "PyJWT>=2.8.0",
-    "cryptography>=41.0.0"
+    "requests>=2.31.0"
 ]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.23.0"
+]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
