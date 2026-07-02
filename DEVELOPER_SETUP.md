@@ -13,4 +13,7 @@ cd coastal-alpine-core
 
 # At the root of your coastal-alpine-stack folder
 uv sync
+uv run pytest
+ruff check .
+ruff format .
 ```
