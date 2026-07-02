@@ -1,0 +1,20 @@
+name: "Verify after core update"
+description: "Install latest core and run portal tests"
+
+inputs:
+  core-version:
+    description: "Core version to pin (e.g. v0.3.0)"
+    required: true
+
+runs:
+  using: "composite"
+  steps:
+    - name: Install core
+      shell: bash
+      run: |
+        pip install "coastal-alpine-core @ git+https://github.com/fivepanelhat/coastal-alpine-core.git@${{ inputs.core-version }}"
+
+    - name: Run tests
+      shell: bash
+      run: |
+        pytest -q --tb=short
