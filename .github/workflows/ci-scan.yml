@@ -38,10 +38,7 @@ jobs:
       - name: Run tests
         run: |
           if compgen -G "tests/test_*.py" > /dev/null; then
-            if [ -f requirements.txt ]; then
-              sudo apt-get update -qq && sudo apt-get install -y -qq portaudio19-dev || true
-              pip install -r requirements.txt
-            fi
+            pip install -e .[dev]
             python -m pytest tests -q
           else
             echo "No pytest suite at tests/ — lint-only scan."
