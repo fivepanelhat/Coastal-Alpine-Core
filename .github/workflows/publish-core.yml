@@ -25,7 +25,8 @@ jobs:
           node-version-file: '.node-version'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@fivepanelhat'
-      - run: npm ci
+      # No package-lock.json is committed, so `npm ci` can never run here
+      - run: npm install
       - run: npm run build --if-present
       - run: npm publish
         env:
@@ -35,8 +36,7 @@ jobs:
     name: Publish Python Wheel for Edge Nodes
     runs-on: ubuntu-latest
     permissions:
-      contents: read
-      packages: write
+      contents: write
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -47,11 +47,16 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install build tools
-        run: python -m pip install --upgrade pip build twine
+        run: python -m pip install --upgrade pip build
       - name: Build Wheel
         run: python -m build
-      - name: Publish to GitHub Packages (PyPI)
+      - name: Attach wheel to the GitHub Release
+        # GitHub Packages has no PyPI registry (the old step twine-uploaded a
+        # wheel to the NuGet endpoint and got 405). Edge nodes install from
+        # the release asset or via git+https, so publish the artefacts there.
         env:
-          TWINE_USERNAME: ${{ github.actor }}
-          TWINE_PASSWORD: ${{ secrets.GITHUB_TOKEN }}
-        run: twine upload --repository-url https://nuget.pkg.github.com/fivepanelhat/index.json dist/*
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG="${GITHUB_REF#refs/tags/}"
+          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --draft --title "Release $TAG" --generate-notes
+          gh release upload "$TAG" dist/* --clobber
