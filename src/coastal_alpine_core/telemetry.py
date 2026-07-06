@@ -184,18 +184,75 @@ class DataFlywheel:
     ):
         self.update_trajectory_with_feedback(original_trajectory_id, feedback, new_outcome)
 
-    # ... (rest of the methods: get_recent_trajectories, curate_golden_set, evaluate_trajectory remain the same)
+    def update_trajectory_with_feedback(
+        self, trajectory_id: str, feedback: str, new_outcome: str = "human_corrected"
+    ) -> bool:
+        """Rewrite the matching record with human feedback attached."""
+        trajectories = self._load_all()
+        updated = False
+        for traj in trajectories:
+            if traj.trajectory_id == trajectory_id:
+                traj.human_feedback = feedback
+                traj.outcome = new_outcome
+                updated = True
+                break
+
+        if not updated:
+            logger.warning(f"Flywheel: trajectory {trajectory_id} not found for feedback update")
+            return False
+
+        tmp_path = self.storage_path.with_suffix(self.storage_path.suffix + ".tmp")
+        with tmp_path.open("w", encoding="utf-8") as f:
+            for traj in trajectories:
+                f.write(json.dumps(asdict(traj), default=str) + "\n")
+        tmp_path.replace(self.storage_path)
+        logger.info(f"Flywheel: attached human feedback to {trajectory_id}")
+        return True
+
+    def _load_all(self) -> list[Trajectory]:
+        """Parse every valid JSONL record; corrupt lines are skipped, never fatal."""
+        if not self.storage_path.exists():
+            return []
+        trajectories: list[Trajectory] = []
+        valid_fields = {f.name for f in Trajectory.__dataclass_fields__.values()}
+        with self.storage_path.open("r", encoding="utf-8") as f:
+            for line_no, line in enumerate(f, start=1):
+                line = line.strip()
+                if not line:
+                    continue
+                try:
+                    data = json.loads(line)
+                    trajectories.append(
+                        Trajectory(**{k: v for k, v in data.items() if k in valid_fields})
+                    )
+                except (json.JSONDecodeError, TypeError) as e:
+                    logger.warning(f"Flywheel: skipping corrupt line {line_no}: {e}")
+        return trajectories
 
     def get_recent_trajectories(self, limit: int = 100) -> list[Trajectory]:
-        # implementation as before
-        pass
+        return self._load_all()[-limit:]
 
     def curate_golden_set(self, min_quality: float = 0.7) -> list[Trajectory]:
-        # implementation as before
-        pass
+        """High-quality successful trajectories suitable for fine-tuning input."""
+        return [
+            t
+            for t in self._load_all()
+            if t.outcome == "success" and t.quality_score is not None and t.quality_score >= min_quality
+        ]
 
     def evaluate_trajectory(
         self, trajectory: Trajectory, llm_judge_func: Callable | None = None
     ) -> float:
-        # implementation as before
-        pass
+        """Score a trajectory 0.0–1.0 via the supplied judge, else a heuristic."""
+        if llm_judge_func is not None:
+            score = float(llm_judge_func(trajectory))
+        else:
+            base = {"success": 0.8, "human_corrected": 0.5}.get(trajectory.outcome, 0.2)
+            # Fast responses are worth slightly more on constrained edge hardware
+            if trajectory.latency_seconds and trajectory.latency_seconds < 1.0:
+                base += 0.1
+            if trajectory.human_feedback:
+                base += 0.1
+            score = base
+        trajectory.quality_score = max(0.0, min(1.0, score))
+        return trajectory.quality_score

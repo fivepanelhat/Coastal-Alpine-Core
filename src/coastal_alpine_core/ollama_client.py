@@ -43,11 +43,14 @@ class SovereignOllamaClient:
     ):
         self.host = host.rstrip("/")
         self.default_model = default_model
+        # Keep-alive session: repeated generate() calls reuse one TCP
+        # connection instead of a fresh handshake per request.
+        self.session = requests.Session()
 
     def check_health(self) -> bool:
         """Checks if the local Ollama server is responsive."""
         try:
-            response = requests.get(f"{self.host}/api/tags", timeout=3)
+            response = self.session.get(f"{self.host}/api/tags", timeout=3)
             return response.status_code == 200
         except Exception:
             return False
@@ -83,7 +86,7 @@ class SovereignOllamaClient:
 
         for attempt in range(retries):
             try:
-                response = requests.post(url, json=payload, timeout=30)
+                response = self.session.post(url, json=payload, timeout=30)
                 if response.status_code == 200:
                     result: OllamaResponse = response.json()
                     token_count = result.get("eval_count", len(prompt.split()))
