@@ -55,6 +55,12 @@ class SovereignOllamaClient:
         except Exception:
             return False
 
+    def list(self) -> dict[str, Any]:
+        """Return the installed model listing ({"models": [...]}, ollama-py parity)."""
+        response = self.session.get(f"{self.host}/api/tags", timeout=5)
+        response.raise_for_status()
+        return response.json()
+
     def generate(
         self,
         prompt: str,

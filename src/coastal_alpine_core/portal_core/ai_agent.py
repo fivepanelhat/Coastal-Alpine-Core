@@ -15,6 +15,13 @@ from coastal_alpine_core.telemetry import DataFlywheel, TelemetryTracker, Trajec
 logger = logging.getLogger(__name__)
 security_guard = SecurityGuard()
 
+# Actuation values a plan may legally request. Anything else (e.g. an LLM
+# hallucinating "super_high") reverts the whole plan to safe defaults.
+ALLOWED_ACTION_VALUES = {
+    "off", "on", "low", "medium", "high", "normal",
+    "boost", "open", "closed", "reduce", "increase",
+}
+
 
 class OptimizationPlan(BaseModel):
     """Unified Optimization Plan for Coastal Alpine Portals."""
@@ -77,16 +84,27 @@ Respond ONLY with a JSON object containing actions to take.
 
             if json_match:
                 plan_data = json.loads(json_match.group())
-                # Normalize actions if provided at top level
+                # Collect and validate actuation requests. They stay at the
+                # top level too — portal orchestrators read
+                # plan.get("pump_action") etc. directly.
                 actions = {}
-                for k, v in list(plan_data.items()):
+                for k, v in plan_data.items():
                     if k.endswith("_action"):
-                        actions[k] = v.lower()
-                        del plan_data[k]
+                        value = str(v).lower()
+                        if value not in ALLOWED_ACTION_VALUES:
+                            logger.warning(
+                                f"Plan requested unsupported actuation {k}={v!r}. "
+                                "Reverting to safe defaults."
+                            )
+                            return self._generate_default_plan()
+                        actions[k] = value
 
-                plan_data["actions"] = actions
-                validated = OptimizationPlan(**plan_data)
+                validated = OptimizationPlan(
+                    **{k: v for k, v in plan_data.items() if not k.endswith("_action")},
+                    actions=actions,
+                )
                 plan = validated.model_dump()
+                plan.update(actions)
             else:
                 logger.warning(
                     "AI optimization plan did not return structured JSON. Reverting to safe defaults."
@@ -120,27 +138,132 @@ Respond ONLY with a JSON object containing actions to take.
             return self._generate_default_plan()
 
     async def analyze_sensor_state(self, sensor_data: dict) -> dict:
-        return {"status": "analyzed", "raw": sensor_data}
+        prompt = (
+            "Analyze this environmental sensor snapshot and respond ONLY with a "
+            "JSON object describing status and trends.\n"
+            f"Readings: {json.dumps(sensor_data, default=str)}"
+        )
+        raw_text = ""
+        try:
+            response = await asyncio.wait_for(
+                asyncio.to_thread(self.client.generate, prompt, model=self.model),
+                timeout=30.0,
+            )
+            raw_text = response.get("response", "").strip()
+            json_match = re.search(r"\{.*\}", raw_text, re.DOTALL)
+            if json_match:
+                analysis = json.loads(json_match.group())
+                analysis.setdefault("analysis_id", f"sens-{uuid.uuid4().hex[:12]}")
+                analysis.setdefault("timestamp", datetime.now().isoformat())
+                return analysis
+            # Freeform reply — keep it as an observation rather than losing it
+            return {
+                "status": "unknown",
+                "observations": raw_text,
+                "analysis_id": f"sens-{uuid.uuid4().hex[:12]}",
+                "timestamp": datetime.now().isoformat(),
+            }
+        except (asyncio.TimeoutError, TimeoutError):
+            return {
+                "status": "unknown",
+                "observations": "LLM timeout during sensor analysis.",
+                "analysis_id": f"sens-{uuid.uuid4().hex[:12]}",
+                "timestamp": datetime.now().isoformat(),
+            }
+        except (json.JSONDecodeError, ValueError):
+            return {
+                "status": "unknown",
+                "observations": raw_text,
+                "analysis_id": f"sens-{uuid.uuid4().hex[:12]}",
+                "timestamp": datetime.now().isoformat(),
+            }
 
     async def process_visual_feedback(self, frame_data: bytes) -> dict:
-        return {"status": "analyzed_vision"}
+        prompt = (
+            "A camera frame from the growing area was captured. Respond ONLY "
+            "with a JSON object assessing overall_health, anomalies, and confidence."
+        )
+        raw_text = ""
+        try:
+            response = await asyncio.wait_for(
+                asyncio.to_thread(self.client.generate, prompt, model=self.model),
+                timeout=30.0,
+            )
+            raw_text = response.get("response", "").strip()
+            json_match = re.search(r"\{.*\}", raw_text, re.DOTALL)
+            if json_match:
+                result = json.loads(json_match.group())
+                result["frame_bytes"] = len(frame_data)
+                return result
+            return {
+                "overall_health": "pending",
+                "analysis": raw_text,
+                "frame_bytes": len(frame_data),
+            }
+        except (asyncio.TimeoutError, TimeoutError, json.JSONDecodeError, ValueError):
+            return {
+                "overall_health": "pending",
+                "analysis": raw_text or "LLM timeout during visual analysis.",
+                "frame_bytes": len(frame_data),
+            }
 
     async def process_audio_feedback(self, audio_data: bytes) -> dict:
-        return {"status": "analyzed_audio"}
+        prompt = (
+            "An audio sample from the equipment area was captured. Respond ONLY "
+            "with a JSON object: anomaly_detected (bool), type, confidence."
+        )
+        raw_text = ""
+        try:
+            response = await asyncio.wait_for(
+                asyncio.to_thread(self.client.generate, prompt, model=self.model),
+                timeout=30.0,
+            )
+            raw_text = response.get("response", "").strip()
+            json_match = re.search(r"\{.*\}", raw_text, re.DOTALL)
+            if json_match:
+                result = json.loads(json_match.group())
+                result["audio_bytes"] = len(audio_data)
+                return result
+            return {
+                "anomaly_detected": False,
+                "analysis": raw_text,
+                "audio_bytes": len(audio_data),
+            }
+        except (asyncio.TimeoutError, TimeoutError, json.JSONDecodeError, ValueError):
+            return {
+                "anomaly_detected": False,
+                "analysis": raw_text or "LLM timeout during audio analysis.",
+                "audio_bytes": len(audio_data),
+            }
 
     async def health_check(self) -> bool:
-        return True
+        """True only when Ollama responds AND the configured model is loaded."""
+        try:
+            listing = await asyncio.wait_for(
+                asyncio.to_thread(self.client.list),
+                timeout=5.0,
+            )
+            models = listing.get("models", []) if isinstance(listing, dict) else []
+            return any(m.get("name", "").startswith(self.model) for m in models)
+        except Exception as e:
+            logger.warning(f"Ollama health check failed: {e}")
+            return False
 
     def record_hardware_result(self, plan_id: str, action: str, success: bool, **kwargs):
         self.flywheel.record_hardware_outcome(plan_id, action, success, **kwargs)
 
     def _generate_default_plan(self) -> dict:
+        safe_actions = {"pump_action": "medium"}
         default_plan = OptimizationPlan(
             plan_id=f"opt-default-{datetime.now().strftime('%Y%m%d%H%M%S')}",
             confidence_score=0.5,
             logistical_notes="Safe fallback parameters applied due to system exception or prompt blocking.",
             execution_window_minutes=30,
             requires_human_review=True,
-            actions={},
+            actions=safe_actions,
         )
-        return default_plan.model_dump()
+        plan = default_plan.model_dump()
+        # Mirror actions at the top level — portal orchestrators read
+        # plan.get("pump_action") etc. directly.
+        plan.update(safe_actions)
+        return plan
