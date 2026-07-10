@@ -2,6 +2,19 @@
 
 All notable changes to the shared `coastal_alpine_core` package will be documented in this file.
 
+## [0.5.3] - 2026-07-11
+
+### Changed / optimised (edge SDK)
+- `SovereignOllamaClient`: keep-alive session, edge default options, optional LRU response cache, `invoke`/`chat` aliases, configurable timeout.
+- `SecurityGuard`: precompiled regex patterns; shared default guard for `input_guard_check`.
+- `DataFlywheel`: automatic JSONL rotation; faster recent-read path for large files.
+- `TelemetryTracker`: non-blocking `cpu_percent(interval=None)`.
+- `MQTTClient`: bounded queue with drop-oldest backpressure.
+- `AVCapture`: optional downscale + JPEG quality for Pi bandwidth.
+- `AIAgent`: skip visual/audio LLM when capture is None; compact flywheel metadata.
+- `HardwareController`: normalise `*_action` keys; `setup`/`cleanup` lifecycle hooks.
+- Export `SecurityGuard` / `SecurityResult`; package version **0.5.3**.
+
 ## [1.2.0] - 2026-06-08
 
 ### Added

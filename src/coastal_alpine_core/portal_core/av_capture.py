@@ -29,11 +29,16 @@ class AVCapture:
         video_fps: int = 30,
         audio_sample_rate: int = 16000,
         audio_chunk_size: int = 4096,
+        max_width: int = 640,
+        jpeg_quality: int = 80,
     ):
         self.camera_index = camera_index
         self.video_fps = video_fps
         self.audio_sample_rate = audio_sample_rate
         self.audio_chunk_size = audio_chunk_size
+        # Edge optimisations: downscale before JPEG to cut LLM/vision bandwidth
+        self.max_width = max_width
+        self.jpeg_quality = max(40, min(95, int(jpeg_quality)))
         self.video_capture = None
         self.audio_stream = None
         self._pyaudio_instance = None
@@ -85,7 +90,23 @@ class AVCapture:
             if not ok:
                 logger.warning("Camera read returned no frame.")
                 return None
-            ok, encoded = cv2.imencode(".jpg", frame)
+            # Downscale wide frames for edge CPU/bandwidth
+            try:
+                h, w = frame.shape[:2]
+                if self.max_width and w > self.max_width:
+                    scale = self.max_width / float(w)
+                    frame = cv2.resize(
+                        frame,
+                        (self.max_width, max(1, int(h * scale))),
+                        interpolation=cv2.INTER_AREA,
+                    )
+            except Exception:
+                pass
+            ok, encoded = cv2.imencode(
+                ".jpg",
+                frame,
+                [int(cv2.IMWRITE_JPEG_QUALITY), self.jpeg_quality],
+            )
             if not ok:
                 logger.warning("JPEG encoding of captured frame failed.")
                 return None

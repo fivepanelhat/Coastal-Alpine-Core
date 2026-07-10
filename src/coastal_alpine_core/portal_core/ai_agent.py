@@ -112,18 +112,20 @@ Respond ONLY with a JSON object containing actions to take.
                 return self._generate_default_plan()
 
             try:
+                # Compact metadata only — avoid dumping full plan blobs to SD
                 traj = Trajectory(
                     trajectory_id=str(uuid.uuid4()),
                     timestamp=datetime.now().isoformat(),
                     action="generate_optimization_plan",
-                    input_summary=str(sensor_analysis)[:200],
-                    output_summary=str(plan)[:300],
+                    input_summary=str(sensor_analysis)[:120],
+                    output_summary=str(plan.get("plan_id", ""))[:80],
                     outcome="success",
                     latency_seconds=0.0,
                     estimated_energy_joules=0.0,
                     metadata={
                         "plan_id": plan.get("plan_id"),
                         "requires_human_review": plan.get("requires_human_review", False),
+                        "confidence_score": plan.get("confidence_score"),
                     },
                 )
                 self.flywheel.record_trajectory(traj)
@@ -135,6 +137,7 @@ Respond ONLY with a JSON object containing actions to take.
 
         except Exception as e:
             logger.error(f"Error generating optimization plan: {e}")
+            TelemetryTracker.complete_measurement(measurement, include_system_metrics=False)
             return self._generate_default_plan()
 
     async def analyze_sensor_state(self, sensor_data: dict) -> dict:
@@ -163,7 +166,7 @@ Respond ONLY with a JSON object containing actions to take.
                 "analysis_id": f"sens-{uuid.uuid4().hex[:12]}",
                 "timestamp": datetime.now().isoformat(),
             }
-        except (asyncio.TimeoutError, TimeoutError):
+        except TimeoutError:
             return {
                 "status": "unknown",
                 "observations": "LLM timeout during sensor analysis.",
@@ -178,7 +181,16 @@ Respond ONLY with a JSON object containing actions to take.
                 "timestamp": datetime.now().isoformat(),
             }
 
-    async def process_visual_feedback(self, frame_data: bytes) -> dict:
+    async def process_visual_feedback(self, frame_data: bytes | None = None, **kwargs) -> dict:
+        # Accept frame_data= kw used by portals; None skips expensive LLM call
+        if frame_data is None:
+            frame_data = kwargs.get("frame_data")
+        if not frame_data:
+            return {
+                "overall_health": "unavailable",
+                "analysis": "No frame data provided.",
+                "frame_bytes": 0,
+            }
         prompt = (
             "A camera frame from the growing area was captured. Respond ONLY "
             "with a JSON object assessing overall_health, anomalies, and confidence."
@@ -200,14 +212,22 @@ Respond ONLY with a JSON object containing actions to take.
                 "analysis": raw_text,
                 "frame_bytes": len(frame_data),
             }
-        except (asyncio.TimeoutError, TimeoutError, json.JSONDecodeError, ValueError):
+        except (TimeoutError, json.JSONDecodeError, ValueError):
             return {
                 "overall_health": "pending",
                 "analysis": raw_text or "LLM timeout during visual analysis.",
-                "frame_bytes": len(frame_data),
+                "frame_bytes": len(frame_data) if frame_data else 0,
             }
 
-    async def process_audio_feedback(self, audio_data: bytes) -> dict:
+    async def process_audio_feedback(self, audio_data: bytes | None = None, **kwargs) -> dict:
+        if audio_data is None:
+            audio_data = kwargs.get("audio_data")
+        if not audio_data:
+            return {
+                "anomaly_detected": False,
+                "analysis": "No audio data provided.",
+                "audio_bytes": 0,
+            }
         prompt = (
             "An audio sample from the equipment area was captured. Respond ONLY "
             "with a JSON object: anomaly_detected (bool), type, confidence."
@@ -229,11 +249,11 @@ Respond ONLY with a JSON object containing actions to take.
                 "analysis": raw_text,
                 "audio_bytes": len(audio_data),
             }
-        except (asyncio.TimeoutError, TimeoutError, json.JSONDecodeError, ValueError):
+        except (TimeoutError, json.JSONDecodeError, ValueError):
             return {
                 "anomaly_detected": False,
                 "analysis": raw_text or "LLM timeout during audio analysis.",
-                "audio_bytes": len(audio_data),
+                "audio_bytes": len(audio_data) if audio_data else 0,
             }
 
     async def health_check(self) -> bool:

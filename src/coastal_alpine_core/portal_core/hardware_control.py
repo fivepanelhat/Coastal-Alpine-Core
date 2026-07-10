@@ -1,3 +1,4 @@
+import contextlib
 import logging
 from enum import Enum
 from typing import Any
@@ -135,6 +136,9 @@ class HardwareController:
                     actions[k.replace("_action", "")] = v
 
         for device, action_val in actions.items():
+            # Normalise "pump_action" → "pump" so plans from AIAgent.actions work
+            if isinstance(device, str) and device.endswith("_action"):
+                device = device[: -len("_action")]
             if isinstance(action_val, str):
                 action_val = action_val.lower()
             try:
@@ -153,6 +157,22 @@ class HardwareController:
                 success = False
 
         return success
+
+    async def setup(self) -> None:
+        """No-op hook for portal lifecycle / tests."""
+        return None
+
+    async def cleanup(self) -> None:
+        """Stop PWM and release GPIO when enabled."""
+        if self.enable_control and GPIO:
+            try:
+                for pwm in self.pwms.values():
+                    with contextlib.suppress(Exception):
+                        pwm.stop()
+                GPIO.cleanup()
+            except Exception as e:
+                logger.warning("GPIO cleanup: %s", e)
+        self.pwms.clear()
 
     async def health_check(self) -> bool:
         return True

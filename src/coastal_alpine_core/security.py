@@ -1,6 +1,11 @@
+"""Prompt injection guards, tenant isolation, and device posture checks."""
+
+from __future__ import annotations
+
 import logging
 import math
 import re
+from collections import deque
 from dataclasses import dataclass
 
 logger = logging.getLogger("CoastalAlpineCore.Security")
@@ -19,7 +24,7 @@ class SecurityResult:
 class SecurityGuard:
     """
     Configurable security guard for prompt injection, file access, and tenant isolation.
-    Returns structured SecurityResult for better observability and future ML training (flywheel).
+    Returns structured SecurityResult for better observability and future ML training.
     """
 
     DEFAULT_PATTERNS: list[str] = [
@@ -35,32 +40,42 @@ class SecurityGuard:
     ]
 
     def __init__(self, custom_patterns: list[str] | None = None):
-        self.patterns = custom_patterns or self.DEFAULT_PATTERNS
+        patterns = custom_patterns or self.DEFAULT_PATTERNS
+        # Compile once — check_prompt is on the hot path for every LLM call
+        self._compiled: list[re.Pattern[str]] = [
+            re.compile(p) if isinstance(p, str) else p for p in patterns
+        ]
+        self.patterns = patterns  # keep original for introspection
 
     def check_prompt(self, prompt: str) -> SecurityResult:
         """
         Scans prompt for injection and dangerous patterns.
         Returns structured result instead of simple bool.
         """
-        for pattern in self.patterns:
-            if re.search(pattern, prompt):
-                logger.warning(f"Security Alert: Malicious pattern detected: {pattern}")
+        text = prompt if isinstance(prompt, str) else str(prompt)
+        for compiled in self._compiled:
+            if compiled.search(text):
+                logger.warning(
+                    "Security Alert: Malicious pattern detected: %s", compiled.pattern
+                )
                 return SecurityResult(
                     is_safe=False,
                     reason="Matched dangerous pattern",
-                    matched_pattern=pattern,
+                    matched_pattern=compiled.pattern,
                     severity="high",
                 )
         return SecurityResult(is_safe=True, reason="Prompt passed basic checks")
+
+
+# Module-level guard reused by input_guard_check (avoids recompile every call)
+_DEFAULT_GUARD = SecurityGuard()
 
 
 def input_guard_check(prompt: str) -> bool:
     """
     Backward-compatible simple boolean check (uses SecurityGuard internally).
     """
-    guard = SecurityGuard()
-    result = guard.check_prompt(prompt)
-    return result.is_safe
+    return _DEFAULT_GUARD.check_prompt(prompt).is_safe
 
 
 def tenant_isolated_query(query_tenant_id: str, active_tenant_id: str) -> bool:
@@ -70,8 +85,9 @@ def tenant_isolated_query(query_tenant_id: str, active_tenant_id: str) -> bool:
     """
     if query_tenant_id != active_tenant_id:
         logger.error(
-            f"SECURITY VIOLATION: Tenant context mismatch! "
-            f"Query={query_tenant_id} vs Session={active_tenant_id}"
+            "SECURITY VIOLATION: Tenant context mismatch! Query=%s vs Session=%s",
+            query_tenant_id,
+            active_tenant_id,
         )
         return False
     return True
@@ -83,62 +99,59 @@ VALID_FIRMWARE_HASHES = {
     "PI5_STING_VISION": "7f83b1657ff1fc53b92c48da1bf5553d684d054611ba4f1f4d9240d8bf1b3a1a",  # pragma: allowlist secret
 }
 
-# In-memory rolling telemetry cache to calculate statistical anomalies (sliding window)
-HISTORY_WINDOW = {}
+# In-memory rolling telemetry cache (sliding window per device)
+HISTORY_WINDOW: dict[str, deque[float]] = {}
+HISTORY_MAXLEN = 50
 
 
 def device_posture_check(device_id, payload):
     """
-    Executes continuous device posture verification and mathematical telemetry anomaly detection.
+    Continuous device posture verification and Z-score telemetry anomaly detection.
     """
     try:
-        # 1. Parse Sub-Structures
         posture = payload.get("posture", {})
         telemetry = payload.get("telemetry", {})
 
-        # 2. Cryptographic Posture Check
         expected_hash = VALID_FIRMWARE_HASHES.get(payload.get("device_type"))
         if not expected_hash or posture.get("firmware_hash") != expected_hash:
-            print(
-                f"[SECOPS ANOMALY] Posture validation failed for {device_id}! Rogue firmware detected."
+            logger.warning(
+                "[SECOPS ANOMALY] Posture validation failed for %s — rogue firmware?",
+                device_id,
             )
             return False, "INVALID_POSTURE_HASH"
 
-        # Check for impossible process loops (e.g., critical background security daemon missing)
         if "sec_daemon" not in posture.get("running_processes", []):
-            print(f"[SECOPS ANOMALY] Device {device_id} is running in a degraded security posture.")
+            logger.warning(
+                "[SECOPS ANOMALY] Device %s degraded security posture (sec_daemon missing).",
+                device_id,
+            )
             return False, "MUTATED_PROCESS_STATE"
 
-        # 3. Telemetry Statistical Anomaly Detection (Z-Score)
         current_val = float(telemetry.get("value", 0))
         if device_id not in HISTORY_WINDOW:
-            HISTORY_WINDOW[device_id] = []
+            HISTORY_WINDOW[device_id] = deque(maxlen=HISTORY_MAXLEN)
 
         history = HISTORY_WINDOW[device_id]
 
         if len(history) > 10:
-            # Calculate Mean and Standard Deviation over the local window
             mean = sum(history) / len(history)
             variance = sum((x - mean) ** 2 for x in history) / len(history)
             std_dev = math.sqrt(variance)
 
-            # If standard deviation is trivial, skip Z-Score to avoid division by zero
             if std_dev > 0.5:
                 z_score = abs(current_val - mean) / std_dev
-                # A Z-score greater than 3.5 indicates an extreme statistical outlier
                 if z_score > 3.5:
-                    print(
-                        f"[ALERT] Statistical anomaly flagged on {device_id}. Value: {current_val} (Z-Score: {z_score:.2f})"
+                    logger.warning(
+                        "[ALERT] Statistical anomaly on %s. Value: %s (Z-Score: %.2f)",
+                        device_id,
+                        current_val,
+                        z_score,
                     )
                     return False, "TELEMETRY_OUTLIER"
 
-        # Update sliding window (Keep last 50 readings)
         history.append(current_val)
-        if len(history) > 50:
-            history.pop(0)
-
         return True, "VERIFIED"
 
     except Exception as e:
-        print(f"[ERROR] Input guard failed to process incoming packet: {e}")
+        logger.error("Device posture check failed for %s: %s", device_id, e)
         return False, "PROCESSING_FAULT"

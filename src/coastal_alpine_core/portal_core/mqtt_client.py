@@ -1,4 +1,5 @@
 import asyncio
+import contextlib
 import json
 import logging
 from datetime import datetime
@@ -30,6 +31,7 @@ class MQTTClient:
         password: str | None = None,
         client_id: str = "portal-client",
         topic_prefix: str = "portal/sensors",
+        max_queue_size: int = 100,
         **kwargs,
     ):
         # Legacy callers used broker=/port= keywords
@@ -40,7 +42,9 @@ class MQTTClient:
         self.client_id = client_id
         self.topic_prefix = topic_prefix
         self.connected = False
-        self.message_queue: asyncio.Queue = asyncio.Queue()
+        # Bounded queue: when full, drop oldest so slow AI loops never OOM the Pi
+        self.max_queue_size = max(1, int(kwargs.get("max_queue_size", max_queue_size)))
+        self.message_queue: asyncio.Queue = asyncio.Queue(maxsize=self.max_queue_size)
 
         if mqtt is None:
             raise ImportError(
@@ -98,13 +102,21 @@ class MQTTClient:
         except (json.JSONDecodeError, UnicodeDecodeError) as e:
             logger.warning(f"Dropping malformed MQTT payload on {msg.topic}: {e}")
             return
-        self.message_queue.put_nowait(
-            {
-                "topic": msg.topic,
-                "payload": payload,
-                "timestamp": datetime.now().isoformat(),
-            }
-        )
+        item = {
+            "topic": msg.topic,
+            "payload": payload,
+            "timestamp": datetime.now().isoformat(),
+        }
+        try:
+            self.message_queue.put_nowait(item)
+        except asyncio.QueueFull:
+            # Drop oldest, keep newest sensor reading (edge backpressure)
+            with contextlib.suppress(asyncio.QueueEmpty):
+                self.message_queue.get_nowait()
+            try:
+                self.message_queue.put_nowait(item)
+            except asyncio.QueueFull:
+                logger.warning("MQTT queue full; dropping message on %s", msg.topic)
 
     # ---------------- portal-facing API ----------------
 

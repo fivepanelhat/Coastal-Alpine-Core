@@ -36,8 +36,9 @@ class TelemetryTracker:
         if psutil is None:
             return {}
         try:
+            # interval=None is non-blocking (uses last sample) — critical on edge loops
             return {
-                "cpu_percent": psutil.cpu_percent(interval=0.1),
+                "cpu_percent": psutil.cpu_percent(interval=None),
                 "memory_percent": psutil.virtual_memory().percent,
                 "disk_usage_percent": psutil.disk_usage("/").percent,
             }
@@ -146,22 +147,62 @@ class Trajectory:
 class DataFlywheel:
     _instances: dict[str, "DataFlywheel"] = {}  # Simple tenant-aware singleton
 
-    def __new__(cls, storage_path: str = "flywheel_trajectories.jsonl"):
+    # SD-card safety defaults (overridable per instance)
+    DEFAULT_MAX_BYTES = 5 * 1024 * 1024
+    DEFAULT_KEEP_LINES = 2000
+
+    def __new__(cls, storage_path: str = "flywheel_trajectories.jsonl", **kwargs):
         if storage_path not in cls._instances:
             cls._instances[storage_path] = super().__new__(cls)
         return cls._instances[storage_path]
 
-    def __init__(self, storage_path: str = "flywheel_trajectories.jsonl"):
+    def __init__(
+        self,
+        storage_path: str = "flywheel_trajectories.jsonl",
+        max_bytes: int | None = None,
+        keep_lines: int | None = None,
+    ):
         if hasattr(self, "_initialized"):
             return
         self.storage_path = Path(storage_path)
         self.storage_path.parent.mkdir(parents=True, exist_ok=True)
+        self.max_bytes = max_bytes if max_bytes is not None else self.DEFAULT_MAX_BYTES
+        self.keep_lines = (
+            keep_lines if keep_lines is not None else self.DEFAULT_KEEP_LINES
+        )
         self._initialized = True
 
     def record_trajectory(self, trajectory: Trajectory) -> None:
         with self.storage_path.open("a", encoding="utf-8") as f:
             f.write(json.dumps(asdict(trajectory), default=str) + "\n")
-        logger.info(f"Flywheel: Recorded {trajectory.trajectory_id} ({trajectory.outcome})")
+        logger.info(
+            "Flywheel: Recorded %s (%s)", trajectory.trajectory_id, trajectory.outcome
+        )
+        self.rotate_if_needed()
+
+    def rotate_if_needed(self) -> bool:
+        """Trim JSONL when over max_bytes. Returns True if rotated."""
+        try:
+            if not self.storage_path.is_file():
+                return False
+            if self.storage_path.stat().st_size <= self.max_bytes:
+                return False
+            lines = self.storage_path.read_text(
+                encoding="utf-8", errors="replace"
+            ).splitlines()
+            if len(lines) > self.keep_lines:
+                kept = lines[-self.keep_lines :]
+                self.storage_path.write_text(
+                    "\n".join(kept) + "\n", encoding="utf-8"
+                )
+            else:
+                data = self.storage_path.read_bytes()
+                self.storage_path.write_bytes(data[-(self.max_bytes // 2) :])
+            logger.warning("Flywheel rotated at %s", self.storage_path)
+            return True
+        except OSError as e:
+            logger.error("Flywheel rotation failed: %s", e)
+            return False
 
     def record_hardware_outcome(self, plan_id: str, action: str, success: bool, **kwargs) -> None:
         """Convenience method for portals after hardware enforcement."""
@@ -230,6 +271,39 @@ class DataFlywheel:
         return trajectories
 
     def get_recent_trajectories(self, limit: int = 100) -> list[Trajectory]:
+        """Return the last *limit* trajectories (loads file; use modest limits on edge)."""
+        if limit <= 0:
+            return []
+        # Fast path: for small limits, read from end of file when possible
+        if not self.storage_path.exists():
+            return []
+        try:
+            # Read last ~256KB for recent windows — avoids full scan on large flywheels
+            size = self.storage_path.stat().st_size
+            if size > 256 * 1024 and limit <= 100:
+                with self.storage_path.open("rb") as f:
+                    f.seek(max(0, size - 256 * 1024))
+                    chunk = f.read().decode("utf-8", errors="replace")
+                # Drop partial first line
+                lines = chunk.splitlines()[1:]
+                valid_fields = {fld.name for fld in Trajectory.__dataclass_fields__.values()}
+                recent: list[Trajectory] = []
+                for line in lines:
+                    line = line.strip()
+                    if not line:
+                        continue
+                    try:
+                        data = json.loads(line)
+                        recent.append(
+                            Trajectory(
+                                **{k: v for k, v in data.items() if k in valid_fields}
+                            )
+                        )
+                    except (json.JSONDecodeError, TypeError):
+                        continue
+                return recent[-limit:]
+        except OSError:
+            pass
         return self._load_all()[-limit:]
 
     def curate_golden_set(self, min_quality: float = 0.7) -> list[Trajectory]:

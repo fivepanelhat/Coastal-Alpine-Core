@@ -5,7 +5,7 @@ The engine room for autonomous portals.
 Orchestrates multi-modal data ingestion, LLM reasoning, and hardware enforcement.
 """
 
-__version__ = "0.2.0"
+__version__ = "0.2.1"
 __author__ = "Coastal Alpine Tech Limited"
 
 import sys as _sys
