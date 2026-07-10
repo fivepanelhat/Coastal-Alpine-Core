@@ -2,6 +2,12 @@
 
 All notable changes to the shared `coastal_alpine_core` package will be documented in this file.
 
+## [0.5.4] - 2026-07-11
+
+### Security
+- Expanded `SecurityGuard` default patterns: jailbreak/exfiltration, SSRF metadata endpoints, credential harvesting, pipe-to-shell, PowerShell `-enc`, and broader SQL destruction lures.
+- Documented Dependabot / Code Scanning response process in `SECURITY.md`.
+
 ## [0.5.3] - 2026-07-11
 
 ### Changed / optimised (edge SDK)

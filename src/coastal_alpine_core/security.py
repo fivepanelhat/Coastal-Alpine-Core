@@ -28,15 +28,35 @@ class SecurityGuard:
     """
 
     DEFAULT_PATTERNS: list[str] = [
+        # Prompt injection / jailbreak
         r"(?i)\bignore previous instructions\b",
+        r"(?i)\bignore (all|any) (previous|prior|above) (instructions|rules|prompts)\b",
+        r"(?i)\bdisregard (your|the) (system|developer) (prompt|message|instructions)\b",
+        r"(?i)\byou are now\b.*\b(unrestricted|jailbroken|DAN)\b",
         r"(?i)\bsystem prompt\b",
+        r"(?i)\bdeveloper message\b",
+        r"(?i)\bexfiltrat(e|ion)\b",
+        # SQL / data destruction
         r"(?i)\bdelete from\b",
         r"(?i)\bdrop table\b",
-        r"(?i)union select",
+        r"(?i)\btruncate table\b",
+        r"(?i)union(\s+all)?\s+select",
+        r"(?i)\binto outfile\b",
+        # Path / OS command injection
         r"etc/passwd",
         r"C:\\Windows\\system32",
         r"(?i)\bformat c:\b",
-        r"(?i)\brm -rf\b",
+        r"(?i)\brm\s+-rf\b",
+        r"(?i)\bcurl\s+[^\n]*\|\s*(ba)?sh\b",
+        r"(?i)\bwget\s+[^\n]*\|\s*(ba)?sh\b",
+        r"(?i)\bpowershell\s+(-enc|-encodedcommand)\b",
+        # SSRF / remote code lure
+        r"(?i)\bfile:///",
+        r"(?i)\bmetadata\.google\.internal\b",
+        r"(?i)\b169\.254\.169\.254\b",
+        # Credential harvesting
+        r"(?i)\bBEGIN (RSA |OPENSSH |EC )?PRIVATE KEY\b",
+        r"(?i)\baws_secret_access_key\b",
     ]
 
     def __init__(self, custom_patterns: list[str] | None = None):

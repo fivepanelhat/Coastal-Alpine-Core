@@ -12,7 +12,7 @@ from .security import (
 )
 from .telemetry import DataFlywheel, TelemetryTracker, Trajectory, log_performance
 
-__version__ = "0.5.3"
+__version__ = "0.5.4"
 
 __all__ = [
     "TelemetryTracker",
