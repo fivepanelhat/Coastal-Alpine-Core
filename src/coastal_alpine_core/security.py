@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hmac
 import logging
 import math
 import re
@@ -133,7 +134,9 @@ def device_posture_check(device_id, payload):
         telemetry = payload.get("telemetry", {})
 
         expected_hash = VALID_FIRMWARE_HASHES.get(payload.get("device_type"))
-        if not expected_hash or posture.get("firmware_hash") != expected_hash:
+        # Constant-time compare (Diamond): avoids leaking hash prefix via timing.
+        provided_hash = posture.get("firmware_hash") or ""
+        if not expected_hash or not hmac.compare_digest(str(provided_hash), expected_hash):
             logger.warning(
                 "[SECOPS ANOMALY] Posture validation failed for %s — rogue firmware?",
                 device_id,

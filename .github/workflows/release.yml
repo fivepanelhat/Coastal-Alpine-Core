@@ -10,6 +10,10 @@ on:
         description: "Version to release (e.g. v0.1.0)"
         required: true
 
+# Least-privilege default (Diamond standard); jobs elevate only what they need.
+permissions:
+  contents: read
+
 jobs:
   release:
     runs-on: ubuntu-latest

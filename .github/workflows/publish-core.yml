@@ -7,6 +7,10 @@ on:
     tags:
       - 'v*.*.*' # Only triggers when you push a version tag, e.g., v1.0.2
 
+# Least-privilege default (Diamond standard); jobs elevate only what they need.
+permissions:
+  contents: read
+
 jobs:
   publish-npm:
     name: Publish Node Package for Portals
