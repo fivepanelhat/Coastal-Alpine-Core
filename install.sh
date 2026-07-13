@@ -28,6 +28,12 @@ if [[ -z "$PYTHON_BIN" ]]; then
 fi
 PY_VER="$("$PYTHON_BIN" -c 'import sys; print("%d.%d" % sys.version_info[:2])')"
 info "Using Python $PY_VER ($PYTHON_BIN)"
+PY_MAJOR="$("$PYTHON_BIN" -c 'import sys; print(sys.version_info[0])')"
+PY_MINOR="$("$PYTHON_BIN" -c 'import sys; print(sys.version_info[1])')"
+if [[ "$PY_MAJOR" -lt 3 ]] || { [[ "$PY_MAJOR" -eq 3 ]] && [[ "$PY_MINOR" -lt 10 ]]; }; then
+  err "Python 3.10+ is required (found ${PY_MAJOR}.${PY_MINOR})."
+  exit 1
+fi
 
 if [[ -f "pyproject.toml" ]] && grep -q 'name = "coastal-alpine-core"' pyproject.toml 2>/dev/null; then
   SRC_DIR="$(pwd)"
@@ -55,7 +61,7 @@ info "Creating virtualenv at $VENV_DIR"
 "$PYTHON_BIN" -m venv "$VENV_DIR"
 # shellcheck disable=SC1091
 source "$VENV_DIR/bin/activate"
-python -m pip install --upgrade pip >/dev/null
+python -m pip install --upgrade pip
 
 if [[ "$EDITABLE" -eq 1 ]]; then
   info "Installing coastal-alpine-core[dev] (editable)"
@@ -64,6 +70,9 @@ else
   info "Installing coastal-alpine-core from $SRC_DIR"
   pip install "$SRC_DIR"
 fi
+
+info "Verifying import"
+python -c "from coastal_alpine_core import SovereignOllamaClient; print('ok')"
 
 echo
 info "Done. Activate the environment with:"
