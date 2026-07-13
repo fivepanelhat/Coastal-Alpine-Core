@@ -102,7 +102,15 @@ def log_performance(action_name: str, device: str = "RPi5"):
         @functools.wraps(func)
         def wrapper(*args: Any, **kwargs: Any) -> Any:
             measurement = TelemetryTracker.measure_latency(action_name)
-            result = func(*args, **kwargs)
+            try:
+                result = func(*args, **kwargs)
+            except Exception:
+                # Still close the measurement: failed calls are exactly the
+                # latency samples the flywheel needs for anomaly detection.
+                TelemetryTracker.complete_measurement(
+                    measurement, token_count=0, device=device
+                )
+                raise
             token_count = 0
             if isinstance(result, str):
                 token_count = len(result.split())

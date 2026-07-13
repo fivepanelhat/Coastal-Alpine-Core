@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "coastal-alpine-core"
-version = "0.5.4"
+version = "0.5.5"
 description = "Shared edge AI SDK for the Kiwi Stack — offline Ollama wrapper, prompt security guard, hardware telemetry, and shared portal framework for RPi 5 + Hailo deployments"
 readme = "README.md"
 requires-python = ">=3.10"

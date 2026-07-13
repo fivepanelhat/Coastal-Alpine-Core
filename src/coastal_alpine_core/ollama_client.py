@@ -8,6 +8,7 @@ import logging
 import time
 from collections import OrderedDict
 from typing import Any, TypedDict
+from urllib.parse import urlparse
 
 import requests
 
@@ -68,6 +69,10 @@ class SovereignOllamaClient:
         "num_predict": 256,
     }
 
+    # Prompts beyond this are rejected before they reach the model: an
+    # unbounded prompt is a trivial memory/latency DoS on an edge node.
+    MAX_PROMPT_CHARS = 100_000
+
     def __init__(
         self,
         host: str = "http://localhost:11434",
@@ -76,6 +81,12 @@ class SovereignOllamaClient:
         cache_size: int = 32,
         enable_cache: bool = True,
     ):
+        parsed = urlparse(host)
+        if parsed.scheme not in ("http", "https") or not parsed.netloc:
+            raise ValueError(
+                f"Invalid Ollama host '{host}': must be an http(s) URL "
+                "(e.g. http://localhost:11434)"
+            )
         self.host = host.rstrip("/")
         self.default_model = default_model
         self.timeout = timeout
@@ -121,6 +132,12 @@ class SovereignOllamaClient:
         """
         from coastal_alpine_core.telemetry import TelemetryTracker
 
+        if not isinstance(prompt, str):
+            raise TypeError("prompt must be a string")
+        if len(prompt) > self.MAX_PROMPT_CHARS:
+            raise ValueError(f"prompt exceeds {self.MAX_PROMPT_CHARS} character limit")
+        retries = max(1, retries)
+
         active_model = model or self.default_model
         merged_options = {**self.DEFAULT_OPTIONS, **(options or {})}
         url = f"{self.host}/api/generate"
@@ -148,20 +165,32 @@ class SovereignOllamaClient:
             try:
                 response = self.session.post(url, json=payload, timeout=self.timeout)
                 if response.status_code == 200:
-                    result: OllamaResponse = response.json()
-                    token_count = result.get("eval_count", len(prompt.split()))
-                    TelemetryTracker.complete_measurement(
-                        measurement, token_count=token_count
+                    # A 200 with a malformed body must count as a failed
+                    # attempt, not crash the caller mid-retry-loop.
+                    try:
+                        result: OllamaResponse = response.json()
+                    except ValueError:
+                        logger.warning(
+                            "Ollama returned unparseable JSON body. Attempt %s/%s",
+                            attempt + 1,
+                            retries,
+                        )
+                        result = None
+                    if result is not None:
+                        token_count = result.get("eval_count", len(prompt.split()))
+                        TelemetryTracker.complete_measurement(
+                            measurement, token_count=token_count
+                        )
+                        if self._cache is not None and key:
+                            self._cache.set(key, result)
+                        return result
+                else:
+                    logger.warning(
+                        "Ollama returned status %s. Attempt %s/%s",
+                        response.status_code,
+                        attempt + 1,
+                        retries,
                     )
-                    if self._cache is not None and key:
-                        self._cache.set(key, result)
-                    return result
-                logger.warning(
-                    "Ollama returned status %s. Attempt %s/%s",
-                    response.status_code,
-                    attempt + 1,
-                    retries,
-                )
             except requests.RequestException as e:
                 logger.warning(
                     "Failed connecting to local Ollama on attempt %s/%s: %s",

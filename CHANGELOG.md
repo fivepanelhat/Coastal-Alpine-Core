@@ -10,6 +10,25 @@
 
 All notable changes to the shared `coastal_alpine_core` package will be documented in this file.
 
+## [0.5.5] - 2026-07-13
+
+### Security (Python)
+- `SecurityGuard`: NFKC + zero-width-character normalization before pattern matching — defeats obfuscated injections like `ig<ZWSP>nore previous instructions` and fullwidth-glyph variants; oversized prompts (>32k chars) rejected fail-closed.
+- `tenant_isolated_query`: empty or non-string tenant IDs now rejected — two absent tenant contexts previously "matched" (fail-open).
+- `device_posture_check`: constant-time firmware hash comparison (`hmac.compare_digest`); non-finite telemetry rejected (a single NaN previously poisoned the window and silently disabled Z-score anomaly detection); device history bounded at 1024 ids with FIFO eviction (memory DoS); malformed/non-dict payloads fail closed.
+- `SovereignOllamaClient`: host restricted to http(s) URLs; 100k-char prompt cap before network; malformed JSON in a 200 response counts as a retry instead of crashing the caller.
+- `log_performance`: measurements closed when the wrapped function raises.
+
+### Security (JS, npm 1.3.0)
+- `attestation_validator.js`: strict hex validation on nonce/quote/signature/PCR inputs — closes a replay-check bypass where an empty or non-hex nonce produced an empty buffer that any quote "contains"; constant-time PCR digest comparison (`crypto.timingSafeEqual`); 16-byte nonce entropy floor; expected baseline no longer echoed to logs; golden digest overridable via `CAT_GOLDEN_PCR_DIGEST`.
+- `secure_store.js`: rejects `DB_CIPHER_KEY` values containing quotes/backslashes/control characters (PRAGMA string-literal injection); KDF work factor raised 64,000 → 256,000 (SQLCipher 4 default); DB path overridable via `SOVEREIGN_DB_PATH`; no filesystem side effects at `require()` time.
+- `behavioral_analytics.js`: prototype-pollution-safe `Map` history (a `"__proto__"` nodeId previously returned `Object.prototype` as mutable stats); bounded history (1024 nodes, FIFO eviction); strict nodeId/commandType validation, fail-closed.
+- `validation.js`: nodeId constrained to `[A-Za-z0-9._-]{1,64}` (log-injection / oversized-identifier defense).
+
+### Added
+- `tests/test_security_hardening.py` — pytest regression suite pinning every fail-closed path.
+- `tests/attestation_hardening.test.js` — `node --test` suite for the attestation validator (`npm test`).
+
 ## [0.5.4] - 2026-07-11
 
 ### Security
