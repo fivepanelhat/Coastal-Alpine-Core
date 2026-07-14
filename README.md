@@ -1,10 +1,31 @@
 # Coastal Alpine Core
 
+[![License: Proprietary](https://img.shields.io/badge/License-Proprietary--Commercial-blue.svg)](./LICENSE)
+[![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white)](https://www.python.org)
+[![Version](https://img.shields.io/badge/version-0.5.4-blue.svg)](./CHANGELOG.md)
+
+[![Linux](https://img.shields.io/badge/Linux-Ubuntu%2C%20Debian%2C%20Fedora-FCC624?logo=linux&logoColor=black)](https://github.com/fivepanelhat/Coastal-Alpine-Core)
+[![Windows](https://img.shields.io/badge/Windows-10%2B-0078D4?logo=windows&logoColor=white)](https://github.com/fivepanelhat/Coastal-Alpine-Core)
+[![macOS](https://img.shields.io/badge/macOS-12%2B-000000?logo=apple&logoColor=white)](https://github.com/fivepanelhat/Coastal-Alpine-Core)
+[![Raspberry Pi](https://img.shields.io/badge/Raspberry%20Pi-5%20%2816GB%29-C11A5B?logo=raspberry-pi&logoColor=white)](https://github.com/fivepanelhat/Coastal-Alpine-Core)
+
+[![Claude AI](https://img.shields.io/badge/Claude-Anthropic-9C27B0)](https://anthropic.com)
+[![Gemini](https://img.shields.io/badge/Gemini-Google-4285F4?logo=google&logoColor=white)](https://gemini.google.com)
+[![OpenAI](https://img.shields.io/badge/OpenAI-GPT--4-00A67E)](https://openai.com)
+[![Grok](https://img.shields.io/badge/Grok-xAI-000000)](https://x.ai)
+
+[![Hailo NPU](https://img.shields.io/badge/NPU-Hailo--10H-005A9C)](https://github.com/fivepanelhat/Coastal-Alpine-Core)
+[![Data Sovereign](https://img.shields.io/badge/Data%20Sovereign-NZ%20Bound-00247D)](./ARCHITECTURE.md)
+[![Ollama](https://img.shields.io/badge/Ollama-Local%20LLM-512BD4?logo=data:image/svg%2bxml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCAyNCAyNCI+PGNpcmNsZSBjeD0iMTIiIGN5PSIxMiIgcj0iMTAiIGZpbGw9IiM1MTJCRDQiLz48L3N2Zz4=)](https://ollama.ai)
+
+[![CI Status](https://github.com/fivepanelhat/Coastal-Alpine-Core/actions/workflows/ci-scan.yml/badge.svg?branch=main)](https://github.com/fivepanelhat/Coastal-Alpine-Core/actions/workflows/ci-scan.yml)
+[![Security Status](https://img.shields.io/github/actions/workflow/status/fivepanelhat/Coastal-Alpine-Core/secops.yml?branch=main&label=Security&style=flat-square&color=success)](https://github.com/fivepanelhat/Coastal-Alpine-Core/actions/workflows/secops.yml)
+[![Dependencies](https://img.shields.io/badge/Dependencies-Monitored-brightgreen?logo=dependabot)](https://github.com/fivepanelhat/Coastal-Alpine-Core/security/dependabot)
+
 ![coastal-alpine-core Banner](assets/social_preview.png)
 
 **Coastal Alpine Tech Limited** — pre-seed startup, New Plymouth, Taranaki, Aotearoa New Zealand.
 *Edge AI | Sovereign Systems | Practical Intelligence*
-
 
 Shared python utility package designed for Taranaki-based Coastal Alpine Tech Edge systems. It handles local offline LLM wrapping, security checks, and hardware telemetry tracking.
 
@@ -60,7 +81,7 @@ flowchart TB
         W["Weaver<br/>LangGraph multi-tenant"]
         P["Domain portals<br/>Aqua · Soil · Blue · Sting"]
         A["Aether companion<br/>skills · HITL · computer use"]
-        S["coastal-alpine-stack<br/>compose / K3s monorepo"]
+        S["coastal-alpine-stack<br/>compose / K3s"]
     end
 
     subgraph SDK["coastal_alpine_core package"]
@@ -105,7 +126,6 @@ flowchart TB
 | **Hosts** | Windows · Linux · RPi 5 | Dev on Win/Linux; deploy on edge |
 
 *Full detail: [ARCHITECTURE.md](./ARCHITECTURE.md) · [DEVELOPER_SETUP.md](./DEVELOPER_SETUP.md)*
-
 
 ## Key Features
 
@@ -178,7 +198,7 @@ python -m pip install -U pip
 pip install -e ".[dev]"
 ```
 
-**Prerequisites:** [Python 3.10+](https://www.python.org/downloads/) with “Add Python to PATH”, [Git for Windows](https://git-scm.com/).
+**Prerequisites:** [Python 3.10+](https://www.python.org/downloads/) with "Add Python to PATH", [Git for Windows](https://git-scm.com/).
 
 </details>
 
@@ -216,22 +236,3 @@ print(metrics)
 
 *Built with focus on data sovereignty and edge intelligence.*  
 **Coastal Alpine Tech Limited — New Plymouth, Taranaki, New Zealand.**
-
----
-
-## Project badges
-
-Status badges for this repository (CI, security, license, and stack metadata):
-
-[![License](https://img.shields.io/badge/License-Proprietary--Commercial-blue?style=flat-square)](LICENSE)  
-[![Python: 3.10+](https://img.shields.io/badge/Python-3.10%2B-blue?style=flat-square)](https://www.python.org/)  
-[![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20RPi-0078D6?style=flat-square)]()  
-[![Install](https://img.shields.io/badge/Install-install.sh%20%7C%20install.ps1-0ea5e9?style=flat-square)]()  
-[![Hardware Target](https://img.shields.io/badge/Hardware-Raspberry%20Pi%205%2016GB-C11A5B?style=flat-square&logo=raspberry-pi&logoColor=white)]()  
-[![NPU Acceleration](https://img.shields.io/badge/NPU-Hailo--10H%20Accelerated-005A9C?style=flat-square)]()  
-[![Sovereignty](https://img.shields.io/badge/Sovereignty-NZ%20Data%20Bound-00247D?style=flat-square)]()  
-[![CI](https://github.com/fivepanelhat/Coastal-Alpine-Core/actions/workflows/ci-scan.yml/badge.svg?branch=main)](https://github.com/fivepanelhat/Coastal-Alpine-Core/actions/workflows/ci-scan.yml)  
-[![SecOps](https://img.shields.io/github/actions/workflow/status/fivepanelhat/Coastal-Alpine-Core/secops.yml?branch=main&label=SecOps&style=flat-square&color=success)](https://github.com/fivepanelhat/Coastal-Alpine-Core/actions/workflows/secops.yml)  
-[![RedTeam](https://img.shields.io/github/actions/workflow/status/fivepanelhat/Coastal-Alpine-Core/redteam.yml?branch=main&label=RedTeam&style=flat-square&color=critical)](https://github.com/fivepanelhat/Coastal-Alpine-Core/actions/workflows/redteam.yml)  
-[![Dependabot](https://img.shields.io/badge/Dependencies-Monitored-brightgreen?style=flat-square&logo=dependabot)]()  
-[![Sustainability](https://img.shields.io/badge/EECA%20NZ-Carbon%20Tracked-green?style=flat-square)]()
