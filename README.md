@@ -1,5 +1,22 @@
 # Coastal Alpine Core
 
+<!-- BEGIN CAT_CONGRUENCE_SNIPPET -->
+## Coastal Alpine Tech portfolio
+
+[![Stage](https://img.shields.io/badge/Stage-Pre--seed-8B5CF6)](https://github.com/fivepanelhat/fivepanelhat)
+[![Hybrid](https://img.shields.io/badge/Hybrid-Edge%20%2B%20Multi--model-0f766e)](https://github.com/fivepanelhat/fivepanelhat)
+[![HITL](https://img.shields.io/badge/HITL-Draft%2FPrepare%20only-dc2626)](./.github/agent-fleet/AGENTS.md)
+[![Te Mana Raraunga](https://img.shields.io/badge/Te%20Mana%20Raraunga-Aligned-0f766e)](https://github.com/fivepanelhat/fivepanelhat)
+
+**Part of the [Kiwi Edge AI Stack](https://github.com/fivepanelhat/fivepanelhat)** · Founder OS: [NZ-Start-Up](https://github.com/fivepanelhat/NZ-Start-Up) · Agent policy: [`.github/agent-fleet/`](./.github/agent-fleet/)
+
+> Sovereign hybrid edge AI for NZ farms & founders — local-first + multi-model, Te Mana Raraunga aligned — collaborating with Venture Taranaki, startups.com investors & Kotahitanga Investment Fund (HITL + cultural advisory for formal approaches).
+
+**Agents inform, draft, prepare, monitor, and remind. Humans advise, sign, file, send, and pay.**  
+Anti-hallucination policy: [`.github/agent-fleet/anti-hallucination.md`](./.github/agent-fleet/anti-hallucination.md) · Congruence: [`CAT_CONGRUENCE.md`](./CAT_CONGRUENCE.md)
+<!-- END CAT_CONGRUENCE_SNIPPET -->
+
+
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary--Commercial-blue.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white)](https://www.python.org)
 [![Version](https://img.shields.io/badge/version-0.5.4-blue.svg)](./CHANGELOG.md)
@@ -24,7 +41,7 @@
 
 ![coastal-alpine-core Banner](assets/social_preview.png)
 
-**Coastal Alpine Tech Limited** — pre-seed startup, New Plymouth, Taranaki, Aotearoa New Zealand.
+**Coastal Alpine Tech Limited** â€” pre-seed startup, New Plymouth, Taranaki, Aotearoa New Zealand.
 *Edge AI | Sovereign Systems | Practical Intelligence*
 
 Shared python utility package designed for Taranaki-based Coastal Alpine Tech Edge systems. It handles local offline LLM wrapping, security checks, and hardware telemetry tracking.
@@ -35,11 +52,11 @@ Shared python utility package designed for Taranaki-based Coastal Alpine Tech Ed
 
 ## Architecture Overview
 
-> **Diagrams:** Architecture images and Mermaid maps describe the **target product architecture** for this pre-seed stack. They are engineering design maps — not claims of large-scale commercial fleet deployment.
+> **Diagrams:** Architecture images and Mermaid maps describe the **target product architecture** for this pre-seed stack. They are engineering design maps â€” not claims of large-scale commercial fleet deployment.
 
 Coastal-Alpine-Core is the **shared edge SDK** used by every portal: offline LLM client, input/security guards, and hardware telemetry for **RPi 5 16GB + Hailo-10H** deployments.
 
-![Coastal-Alpine-Core architecture — liquid glass overview](assets/architecture_overview.png)
+![Coastal-Alpine-Core architecture â€” liquid glass overview](assets/architecture_overview.png)
 
 ### System map
 
@@ -79,8 +96,8 @@ flowchart TB
 
     subgraph CONSUMERS["Hybrid consumers"]
         W["Weaver<br/>LangGraph multi-tenant"]
-        P["Domain portals<br/>Aqua · Soil · Blue · Sting"]
-        A["Aether companion<br/>skills · HITL · computer use"]
+        P["Domain portals<br/>Aqua Â· Soil Â· Blue Â· Sting"]
+        A["Aether companion<br/>skills Â· HITL Â· computer use"]
         S["coastal-alpine-stack<br/>compose / K3s"]
     end
 
@@ -89,7 +106,7 @@ flowchart TB
         T["TelemetryTracker"]
         C["SovereignOllamaClient"]
         FW["DataFlywheel"]
-        PC["portal_core<br/>AIAgent · MQTT · AV · Hardware"]
+        PC["portal_core<br/>AIAgent Â· MQTT Â· AV Â· Hardware"]
     end
 
     subgraph AI["Local AI"]
@@ -98,8 +115,8 @@ flowchart TB
     end
 
     subgraph HOSTS["Dual-platform hosts"]
-        WIN["Windows 10/11<br/>install.ps1 · venv"]
-        LIN["Linux / RPi OS<br/>install.sh · venv / uv"]
+        WIN["Windows 10/11<br/>install.ps1 Â· venv"]
+        LIN["Linux / RPi OS<br/>install.sh Â· venv / uv"]
         RPI["RPi 5 16GB + Hailo-10H<br/>production edge"]
     end
 
@@ -119,13 +136,13 @@ flowchart TB
 | :--- | :--- | :--- |
 | **Security** | SecurityGuard / input_guard_check | Injection / scope screening |
 | **LLM** | SovereignOllamaClient | Offline-resilient chat |
-| **Telemetry** | TelemetryTracker | Joules · latency · load |
-| **Flywheel** | DataFlywheel | Trajectories · golden sets |
-| **Portal kit** | portal_core | MQTT · AV · hardware loop |
-| **Consumers** | Weaver · portals · Aether · stack | One SDK, hybridised stack |
-| **Hosts** | Windows · Linux · RPi 5 | Dev on Win/Linux; deploy on edge |
+| **Telemetry** | TelemetryTracker | Joules Â· latency Â· load |
+| **Flywheel** | DataFlywheel | Trajectories Â· golden sets |
+| **Portal kit** | portal_core | MQTT Â· AV Â· hardware loop |
+| **Consumers** | Weaver Â· portals Â· Aether Â· stack | One SDK, hybridised stack |
+| **Hosts** | Windows Â· Linux Â· RPi 5 | Dev on Win/Linux; deploy on edge |
 
-*Full detail: [ARCHITECTURE.md](./ARCHITECTURE.md) · [DEVELOPER_SETUP.md](./DEVELOPER_SETUP.md)*
+*Full detail: [ARCHITECTURE.md](./ARCHITECTURE.md) Â· [DEVELOPER_SETUP.md](./DEVELOPER_SETUP.md)*
 
 ## Key Features
 
@@ -137,12 +154,12 @@ flowchart TB
 
 ## Installation
 
-**Platforms:** Windows 10/11 · Linux (Ubuntu/Debian/RPi OS) · macOS · production edge on **RPi 5 16GB + Hailo-10H**.
+**Platforms:** Windows 10/11 Â· Linux (Ubuntu/Debian/RPi OS) Â· macOS Â· production edge on **RPi 5 16GB + Hailo-10H**.
 
 ### One-line install (recommended)
 
 <details open>
-<summary><strong>🐧 Linux / macOS</strong></summary>
+<summary><strong>ðŸ§ Linux / macOS</strong></summary>
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fivepanelhat/Coastal-Alpine-Core/main/install.sh | bash
@@ -151,7 +168,7 @@ curl -fsSL https://raw.githubusercontent.com/fivepanelhat/Coastal-Alpine-Core/ma
 </details>
 
 <details>
-<summary><strong>🪟 Windows (PowerShell)</strong></summary>
+<summary><strong>ðŸªŸ Windows (PowerShell)</strong></summary>
 
 ```powershell
 irm https://raw.githubusercontent.com/fivepanelhat/Coastal-Alpine-Core/main/install.ps1 | iex
@@ -164,7 +181,7 @@ irm https://raw.githubusercontent.com/fivepanelhat/Coastal-Alpine-Core/main/inst
 ### Manual install
 
 <details open>
-<summary><strong>🐧 Linux / macOS (Bash)</strong></summary>
+<summary><strong>ðŸ§ Linux / macOS (Bash)</strong></summary>
 
 ```bash
 git clone https://github.com/fivepanelhat/Coastal-Alpine-Core.git
@@ -187,7 +204,7 @@ sudo apt-get install -y python3-dev python3-venv python3-pip git build-essential
 </details>
 
 <details>
-<summary><strong>🪟 Windows (PowerShell)</strong></summary>
+<summary><strong>ðŸªŸ Windows (PowerShell)</strong></summary>
 
 ```powershell
 git clone https://github.com/fivepanelhat/Coastal-Alpine-Core.git
@@ -235,4 +252,4 @@ print(metrics)
 ---
 
 *Built with focus on data sovereignty and edge intelligence.*  
-**Coastal Alpine Tech Limited — New Plymouth, Taranaki, New Zealand.**
+**Coastal Alpine Tech Limited â€” New Plymouth, Taranaki, New Zealand.**
