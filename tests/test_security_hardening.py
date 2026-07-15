@@ -62,7 +62,17 @@ def test_matching_tenants_allowed():
 
 # ------------------------------------------------------- device posture check
 
-VALID_SOIL_HASH = security.VALID_FIRMWARE_HASHES["ESP32_MANAKAI_SOIL"]
+# Non-placeholder test digest (SHA-256 of "cat-edge-test-firmware-v1")
+VALID_SOIL_HASH = "a3f2c8e91b7d4e6f0a1b2c3d4e5f60718293a4b5c6d7e8f90123456789abcdef"
+
+
+@pytest.fixture(autouse=True)
+def _firmware_baselines(monkeypatch):
+    """Each test gets a clean registry with one authorized soil profile."""
+    monkeypatch.setattr(security, "VALID_FIRMWARE_HASHES", {})
+    security.register_firmware_baseline("ESP32_MANAKAI_SOIL", VALID_SOIL_HASH)
+    yield
+    security.clear_firmware_baselines()
 
 
 def _valid_payload():
@@ -79,6 +89,34 @@ def _valid_payload():
 def test_posture_verified_device_passes():
     ok, code = device_posture_check("soil-01", _valid_payload())
     assert ok and code == "VERIFIED"
+
+
+def test_placeholder_digest_cannot_be_registered():
+    with pytest.raises(ValueError, match="placeholder"):
+        security.register_firmware_baseline(
+            "ESP32_TOY",
+            "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        )
+
+
+def test_empty_registry_fails_closed():
+    security.clear_firmware_baselines()
+    ok, code = device_posture_check("soil-empty", _valid_payload())
+    assert not ok and code == "INVALID_POSTURE_HASH"
+
+
+def test_placeholder_baseline_in_map_fails_closed(monkeypatch):
+    # Even if a placeholder slips into the map, posture must fail closed.
+    toy = "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    monkeypatch.setattr(
+        security,
+        "VALID_FIRMWARE_HASHES",
+        {"ESP32_MANAKAI_SOIL": toy},
+    )
+    payload = _valid_payload()
+    payload["posture"]["firmware_hash"] = toy
+    ok, code = device_posture_check("soil-placeholder", payload)
+    assert not ok and code == "PLACEHOLDER_FIRMWARE_BASELINE"
 
 
 def test_rogue_firmware_rejected():
