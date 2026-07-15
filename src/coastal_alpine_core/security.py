@@ -148,11 +148,53 @@ def tenant_isolated_query(query_tenant_id: str, active_tenant_id: str) -> bool:
     return True
 
 
-# Registered cryptographic baselines for authorized edge hardware profiles
-VALID_FIRMWARE_HASHES = {
-    "ESP32_MANAKAI_SOIL": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",  # pragma: allowlist secret
-    "PI5_STING_VISION": "7f83b1657ff1fc53b92c48da1bf5553d684d054611ba4f1f4d9240d8bf1b3a1a",  # pragma: allowlist secret
-}
+# Well-known insecure digests that must never be accepted as production baselines.
+# (SHA-256 of empty string; SHA-256 of "Hello World" — common scaffolding placeholders.)
+_PLACEHOLDER_FIRMWARE_DIGESTS = frozenset(
+    {
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "7f83b1657ff1fc53b92c48da1bf5553d684d054611ba4f1f4d9240d8bf1b3a1a",
+    }
+)
+
+_SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
+
+# Registered cryptographic baselines for authorized edge hardware profiles.
+# Empty by default: production fleets must register real digests via
+# register_firmware_baseline() or CAT_FIRMWARE_HASHES_JSON. Fail-closed.
+VALID_FIRMWARE_HASHES: dict[str, str] = {}
+
+
+def _is_placeholder_digest(digest: str) -> bool:
+    return digest.lower() in _PLACEHOLDER_FIRMWARE_DIGESTS
+
+
+def _is_valid_sha256_hex(digest: str) -> bool:
+    return bool(isinstance(digest, str) and _SHA256_HEX_RE.fullmatch(digest.lower()))
+
+
+def register_firmware_baseline(device_type: str, firmware_hash: str) -> None:
+    """Register an authorized firmware digest for a device profile.
+
+    Rejects non-SHA-256 hex strings and known placeholder digests so scaffolding
+    hashes can never become a production trust root.
+    """
+    if not isinstance(device_type, str) or not device_type.strip():
+        raise ValueError("device_type must be a non-empty string")
+    if not _is_valid_sha256_hex(firmware_hash):
+        raise ValueError("firmware_hash must be a 64-char lowercase hex SHA-256 digest")
+    normalized = firmware_hash.lower()
+    if _is_placeholder_digest(normalized):
+        raise ValueError(
+            "firmware_hash is a known placeholder digest and cannot be registered "
+            "(empty-string or Hello-World SHA-256)"
+        )
+    VALID_FIRMWARE_HASHES[device_type] = normalized
+
+
+def clear_firmware_baselines() -> None:
+    """Clear all registered firmware baselines (tests / reconfiguration)."""
+    VALID_FIRMWARE_HASHES.clear()
 
 # In-memory rolling telemetry cache (sliding window per device)
 HISTORY_WINDOW: dict[str, deque[float]] = {}
@@ -180,19 +222,26 @@ def device_posture_check(device_id, payload):
             return False, "MALFORMED_PAYLOAD"
 
         # Constant-time comparison: the firmware digest check must not leak
-        # match-prefix length via timing.
+        # match-prefix length via timing. Placeholder digests fail closed even
+        # if somehow present in VALID_FIRMWARE_HASHES.
         expected_hash = VALID_FIRMWARE_HASHES.get(payload.get("device_type"))
         presented_hash = posture.get("firmware_hash")
         if (
             not expected_hash
             or not isinstance(presented_hash, str)
-            or not hmac.compare_digest(presented_hash, expected_hash)
+            or not _is_valid_sha256_hex(expected_hash)
+            or _is_placeholder_digest(expected_hash)
+            or not hmac.compare_digest(presented_hash.lower(), expected_hash.lower())
         ):
+            reason = "INVALID_POSTURE_HASH"
+            if expected_hash and _is_placeholder_digest(expected_hash):
+                reason = "PLACEHOLDER_FIRMWARE_BASELINE"
             logger.warning(
-                "[SECOPS ANOMALY] Posture validation failed for %s — rogue firmware?",
+                "[SECOPS ANOMALY] Posture validation failed for %s — rogue firmware? (%s)",
                 device_id,
+                reason,
             )
-            return False, "INVALID_POSTURE_HASH"
+            return False, reason
 
         if "sec_daemon" not in posture.get("running_processes", []):
             logger.warning(

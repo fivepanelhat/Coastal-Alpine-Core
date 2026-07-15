@@ -10,6 +10,15 @@
 
 All notable changes to the shared `coastal_alpine_core` package will be documented in this file.
 
+## [0.5.6] - 2026-07-16
+
+### Security
+- Firmware trust roots are **empty by default** and **fail-closed**.
+- Removed known placeholder digests (empty-string SHA-256 and "Hello World" SHA-256) from `VALID_FIRMWARE_HASHES`.
+- Added `register_firmware_baseline()` / `clear_firmware_baselines()`; registration rejects non-SHA-256 and placeholder digests.
+- `device_posture_check` rejects placeholder baselines even if they appear in the map (`PLACEHOLDER_FIRMWARE_BASELINE`).
+- Added `REALITY.md` honesty checklist for pre-seed positioning.
+
 ## [0.5.5] - 2026-07-13
 
 ### Security (Python)
