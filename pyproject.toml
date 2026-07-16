@@ -5,19 +5,19 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "coastal-alpine-core"
 version = "0.5.6"
-description = "Shared edge AI SDK for the Kiwi Stack - offline Ollama wrapper, prompt security guard, hardware telemetry, and shared portal framework for RPi 5 + Hailo deployments"
+description = "Shared edge AI SDK for the Kiwi Stack — offline Ollama wrapper, prompt security guard, hardware telemetry, and shared portal framework for RPi 5 + Hailo deployments"
 readme = "README.md"
 requires-python = ">=3.10"
 license = { text = "Proprietary" }
 authors = [{ name = "Wayne Roberts", email = "wayne@coastalalpine.tech" }]
 dependencies = [
- "PyJWT>=2.8.0",
- "cryptography>=42.0.0",
- "requests>=2.31.0",
- "ollama>=0.3.0",
- "pydantic>=2.5,<3.0",
- "paho-mqtt>=2.1.0",
- "python-dotenv>=1.0.0",
+    "PyJWT>=2.8.0",
+    "cryptography>=42.0.0",
+    "requests>=2.31.0",
+    "ollama>=0.3.0",
+    "pydantic>=2.5,<3.0",
+    "paho-mqtt>=2.1.0",
+    "python-dotenv>=1.0.0",
 ]
 
 [project.urls]
@@ -26,9 +26,9 @@ Repository = "https://github.com/fivepanelhat/coastal-alpine-core"
 
 [project.optional-dependencies]
 dev = [
- "pytest>=8.0",
- "pytest-asyncio>=0.24",
- "ruff>=0.4.0",
+    "pytest>=8.0",
+    "pytest-asyncio>=0.24",
+    "ruff>=0.4.0",
 ]
 
 [tool.setuptools.packages.find]
