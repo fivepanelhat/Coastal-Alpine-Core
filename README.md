@@ -37,6 +37,18 @@ Anti-hallucination policy: [`.github/agent-fleet/anti-hallucination.md`](./.gith
 
 This is foundation IP: it multiplies every beachhead product without shipping a separate end-user app.
 
+### Why this SDK is hard to replace
+
+Most edge AI libraries stop at “run a model offline.”  
+Coastal-Alpine-Core is designed as the measurement and learning substrate for a sovereign data flywheel:
+
+- Every meaningful action can emit a structured trajectory (input summary, output, outcome, latency, energy).
+- Human feedback and quality scores are first-class.
+- Golden sets can be curated locally for continuous improvement without leaving the node.
+- Telemetry is hardware-aware from day one (RPi 5 + Hailo power model).
+
+This turns every deployed portal into a self-improving local system rather than a static inference endpoint. The combination of local trajectory capture, energy-aware measurement, and owner-controlled golden sets is part of the broader Coastal Alpine technical moat (see the portfolio [Technical Moat](https://github.com/fivepanelhat/fivepanelhat#technical-moat) section).
+
 ### Local (Taranaki) and national (Aotearoa) economic benefits
 
 | Lever | Benefit |
@@ -182,6 +194,7 @@ flowchart TB
 1. **SovereignOllamaClient (`ollama_client.py`)**: A robust connection wrapper for local offline Ollama SLM deployments. Handles network dropouts and model loads with automated retries and exponential backoff, falling back to local deterministic responses when fully disconnected.
 2. **Security & Input Guard (`security.py`)**: Scans incoming prompts for potential prompt injections, local file access attempts, or common injection patterns. It also enforces strict tenant scoping context mismatch flags.
 3. **Telemetry & Performance (`telemetry.py`)**: Performance and hardware energy-efficiency tracking specifically designed for edge-native devices (e.g. Raspberry Pi 5 under active load, Hailo NPU draws). Estimates active power draw in Joules.
+4. **DataFlywheel**: Structured trajectory recording, human feedback attachment, golden-set curation, and SD-card-safe rotation. Enables continuous local improvement under owner control.
 
 ---
 
