@@ -16,6 +16,40 @@
 Anti-hallucination policy: [`.github/agent-fleet/anti-hallucination.md`](./.github/agent-fleet/anti-hallucination.md) | Congruence: [`CAT_CONGRUENCE.md`](./CAT_CONGRUENCE.md)
 <!-- END CAT_CONGRUENCE_SNIPPET -->
 
+<!-- BEGIN PROBLEMS_SOLUTIONS_ECONOMY -->
+## Problems we are solving
+
+**Coastal-Alpine-Core** is the shared edge SDK so every portal does not reinvent security, telemetry, and local LLM wiring.
+
+1. **Duplicated edge plumbing** - Each agritech portal re-building MQTT, Ollama, and guards wastes scarce NZ engineering time.
+2. **Inconsistent security posture** - Fragmented crypto and device assumptions fail rural and procurement scrutiny.
+3. **Weak offline defaults** - Libraries written for cloud-first stacks break on RPi field nodes.
+4. **No common audit spine** - Compliance exports and fail-closed patterns must be shared IP, not one-off scripts.
+
+## Solution we have built
+
+| Built capability | What it does |
+| :--- | :--- |
+| **Shared SDK** | Guards, telemetry, Ollama helpers, portal_core primitives |
+| **Edge target** | Canonical **RPi 5 16GB + Hailo-10H** assumptions |
+| **Fail-closed patterns** | Security defaults suitable for pre-seed hardening toward Diamond targets |
+| **Consumed by** | Byte Size Kai, SoilGuard, AquaGuard, stack, and related portals |
+
+This is foundation IP: it multiplies every beachhead product without shipping a separate end-user app.
+
+### Local (Taranaki) and national (Aotearoa) economic benefits
+
+| Lever | Benefit |
+| :--- | :--- |
+| **Regional R&D HQ** | Product design and IP stay in New Plymouth / Taranaki - not only Auckland/offshore SaaS |
+| **Primary-sector productivity** | On-farm and rural tools aim to cut waste, protect consents, and support export competitiveness |
+| **Skilled employment pathways** | Edge install, field support, agritech ops, software, compliance, and cultural advisory roles as pilots scale |
+| **Data sovereignty** | Te Mana Raraunga-aligned local custody keeps high-value operational data onshore |
+| **HITL jobs quality** | Agents **inform / draft / prepare / monitor / remind**; humans **advise / sign / file / send / pay** - augment people, do not fake full autonomy |
+
+**Stage honesty (pre-seed):** Impact today is founder R&D, near-term contractors, and EDA/partner leverage. Permanent multi-region payroll follows paid pilots and revenue - we do not invent headcount claims.
+<!-- END PROBLEMS_SOLUTIONS_ECONOMY -->
+
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary--Commercial-blue.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white)](https://www.python.org)
 [![Version](https://img.shields.io/badge/version-0.5.4-blue.svg)](./CHANGELOG.md)
