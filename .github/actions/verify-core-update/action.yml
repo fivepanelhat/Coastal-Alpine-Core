@@ -2,25 +2,25 @@ name: "Verify Portal Against Core"
 description: "Install specific core version and run full test suite"
 
 inputs:
-  core-ref:
-    description: "Git ref or tag (e.g. v0.3.0)"
-    required: true
-    default: "main"
+ core-ref:
+ description: "Git ref or tag (e.g. v0.3.0)"
+ required: true
+ default: "main"
 
 runs:
-  using: "composite"
-  steps:
-    - name: Checkout core
-      uses: actions/checkout@v4
-      with:
-        repository: fivepanelhat/coastal-alpine-core
-        ref: ${{ inputs.core-ref }}
-        path: core-checkout
+ using: "composite"
+ steps:
+ - name: Checkout core
+ uses: actions/checkout@v4
+ with:
+ repository: fivepanelhat/coastal-alpine-core
+ ref: ${{ inputs.core-ref }}
+ path: core-checkout
 
-    - name: Install core
-      shell: bash
-      run: pip install -e ./core-checkout
+ - name: Install core
+ shell: bash
+ run: pip install -e ./core-checkout
 
-    - name: Run tests
-      shell: bash
-      run: pytest -q --tb=short
+ - name: Run tests
+ shell: bash
+ run: pytest -q --tb=short

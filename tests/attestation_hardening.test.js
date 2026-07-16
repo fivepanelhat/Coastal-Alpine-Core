@@ -20,8 +20,8 @@ const signature = signer.sign(keyPair.privateKey).toString('hex');
 
 const pcrValues = crypto.randomBytes(64).toString('hex');
 const goldenDigest = crypto.createHash('sha256')
-    .update(Buffer.from(pcrValues, 'hex'))
-    .digest('hex');
+ .update(Buffer.from(pcrValues, 'hex'))
+ .digest('hex');
 
 process.env.CAT_GOLDEN_PCR_DIGEST = goldenDigest;
 const { verifyNodeAttestation } = require('../src/attestation_validator');
@@ -29,43 +29,43 @@ const { verifyNodeAttestation } = require('../src/attestation_validator');
 const validAttestation = { quote, signature, pcr_values: pcrValues };
 
 test('valid attestation passes', () => {
-    assert.strictEqual(
-        verifyNodeAttestation(nonce, validAttestation, aikPublicKeyPem),
-        true
-    );
+ assert.strictEqual(
+ verifyNodeAttestation(nonce, validAttestation, aikPublicKeyPem),
+ true
+ );
 });
 
 test('empty nonce is rejected (Buffer.from truncation bypass)', () => {
-    assert.strictEqual(verifyNodeAttestation('', validAttestation, aikPublicKeyPem), false);
+ assert.strictEqual(verifyNodeAttestation('', validAttestation, aikPublicKeyPem), false);
 });
 
 test('non-hex nonce is rejected', () => {
-    assert.strictEqual(
-        verifyNodeAttestation('zzzz-not-hex-zzzz-not-hex-zzzz!!', validAttestation, aikPublicKeyPem),
-        false
-    );
+ assert.strictEqual(
+ verifyNodeAttestation('zzzz-not-hex-zzzz-not-hex-zzzz!!', validAttestation, aikPublicKeyPem),
+ false
+ );
 });
 
 test('short nonce below entropy floor is rejected', () => {
-    assert.strictEqual(verifyNodeAttestation('abcd', validAttestation, aikPublicKeyPem), false);
+ assert.strictEqual(verifyNodeAttestation('abcd', validAttestation, aikPublicKeyPem), false);
 });
 
 test('wrong nonce is rejected (replay defense)', () => {
-    const otherNonce = crypto.randomBytes(16).toString('hex');
-    assert.strictEqual(verifyNodeAttestation(otherNonce, validAttestation, aikPublicKeyPem), false);
+ const otherNonce = crypto.randomBytes(16).toString('hex');
+ assert.strictEqual(verifyNodeAttestation(otherNonce, validAttestation, aikPublicKeyPem), false);
 });
 
 test('tampered signature is rejected', () => {
-    const tampered = { ...validAttestation, signature: crypto.randomBytes(256).toString('hex') };
-    assert.strictEqual(verifyNodeAttestation(nonce, tampered, aikPublicKeyPem), false);
+ const tampered = { ...validAttestation, signature: crypto.randomBytes(256).toString('hex') };
+ assert.strictEqual(verifyNodeAttestation(nonce, tampered, aikPublicKeyPem), false);
 });
 
 test('mutated PCR values are rejected', () => {
-    const mutated = { ...validAttestation, pcr_values: crypto.randomBytes(64).toString('hex') };
-    assert.strictEqual(verifyNodeAttestation(nonce, mutated, aikPublicKeyPem), false);
+ const mutated = { ...validAttestation, pcr_values: crypto.randomBytes(64).toString('hex') };
+ assert.strictEqual(verifyNodeAttestation(nonce, mutated, aikPublicKeyPem), false);
 });
 
 test('missing payload and malformed key fail closed', () => {
-    assert.strictEqual(verifyNodeAttestation(nonce, null, aikPublicKeyPem), false);
-    assert.strictEqual(verifyNodeAttestation(nonce, validAttestation, 'not-a-pem'), false);
+ assert.strictEqual(verifyNodeAttestation(nonce, null, aikPublicKeyPem), false);
+ assert.strictEqual(verifyNodeAttestation(nonce, validAttestation, 'not-a-pem'), false);
 });
