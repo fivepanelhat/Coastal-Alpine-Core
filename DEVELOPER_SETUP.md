@@ -1,8 +1,8 @@
-# Developer Setup — Coastal-Alpine-Core
+# Developer Setup - Coastal-Alpine-Core
 
-Shared SDK for the hybrid Kiwi Edge stack (**Weaver · portals · Aether · coastal-alpine-stack**).
+Shared SDK for the hybrid Kiwi Edge stack (**Weaver | portals | Aether | coastal-alpine-stack**).
 
-**Platforms:** Windows 10/11 · Linux (Ubuntu/Debian/RPi OS) · macOS · production edge on **RPi 5 16GB + Hailo-10H**.
+**Platforms:** Windows 10/11 | Linux (Ubuntu/Debian/RPi OS) | macOS | production edge on **RPi 5 16GB + Hailo-10H**.
 
 ---
 
@@ -50,7 +50,7 @@ irm https://raw.githubusercontent.com/fivepanelhat/Coastal-Alpine-Core/main/inst
 ### From clone
 
 <details open>
-<summary><strong>🐧 Linux / macOS</strong></summary>
+<summary><strong> Linux / macOS</strong></summary>
 
 ```bash
 git clone https://github.com/fivepanelhat/Coastal-Alpine-Core.git
@@ -75,7 +75,7 @@ ruff format .
 </details>
 
 <details>
-<summary><strong>🪟 Windows (PowerShell)</strong></summary>
+<summary><strong> Windows (PowerShell)</strong></summary>
 
 ```powershell
 git clone https://github.com/fivepanelhat/Coastal-Alpine-Core.git

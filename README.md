@@ -12,10 +12,9 @@
 
 > Sovereign hybrid edge AI for NZ farms and founders - local-first + multi-model, Te Mana Raraunga aligned - collaborating with Venture Taranaki, startups.com investors and Kotahitanga Investment Fund (HITL + cultural advisory for formal approaches).
 
-**Agents inform, draft, prepare, monitor, and remind. Humans advise, sign, file, send, and pay.**  
+**Agents inform, draft, prepare, monitor, and remind. Humans advise, sign, file, send, and pay.** 
 Anti-hallucination policy: [`.github/agent-fleet/anti-hallucination.md`](./.github/agent-fleet/anti-hallucination.md) | Congruence: [`CAT_CONGRUENCE.md`](./CAT_CONGRUENCE.md)
 <!-- END CAT_CONGRUENCE_SNIPPET -->
-
 
 [![License: Proprietary](https://img.shields.io/badge/License-Proprietary--Commercial-blue.svg)](./LICENSE)
 [![Python](https://img.shields.io/badge/Python-3.10%2B-3776ab?logo=python&logoColor=white)](https://www.python.org)
@@ -41,7 +40,7 @@ Anti-hallucination policy: [`.github/agent-fleet/anti-hallucination.md`](./.gith
 
 ![coastal-alpine-core Banner](assets/social_preview.png)
 
-**Coastal Alpine Tech Limited**  pre-seed startup, New Plymouth, Taranaki, Aotearoa New Zealand.
+**Coastal Alpine Tech Limited** pre-seed startup, New Plymouth, Taranaki, Aotearoa New Zealand.
 *Edge AI | Sovereign Systems | Practical Intelligence*
 
 Shared python utility package designed for Taranaki-based Coastal Alpine Tech Edge systems. It handles local offline LLM wrapping, security checks, and hardware telemetry tracking.
@@ -52,84 +51,84 @@ Shared python utility package designed for Taranaki-based Coastal Alpine Tech Ed
 
 ## Architecture Overview
 
-> **Diagrams:** Architecture images and Mermaid maps describe the **target product architecture** for this pre-seed stack. They are engineering design maps  not claims of large-scale commercial fleet deployment.
+> **Diagrams:** Architecture images and Mermaid maps describe the **target product architecture** for this pre-seed stack. They are engineering design maps not claims of large-scale commercial fleet deployment.
 
 Coastal-Alpine-Core is the **shared edge SDK** used by every portal: offline LLM client, input/security guards, and hardware telemetry for **RPi 5 16GB + Hailo-10H** deployments.
 
-![Coastal-Alpine-Core architecture  liquid glass overview](assets/architecture_overview.png)
+![Coastal-Alpine-Core architecture liquid glass overview](assets/architecture_overview.png)
 
 ### System map
 
 ```mermaid
 %%{init: {
-  "theme": "dark",
-  "themeVariables": {
-    "fontSize": "15px",
-    "fontFamily": "Inter, ui-sans-serif, system-ui, sans-serif",
-    "primaryColor": "#0ea5e9",
-    "primaryTextColor": "#f8fafc",
-    "primaryBorderColor": "#38bdf8",
-    "lineColor": "#67e8f9",
-    "secondaryColor": "#1e293b",
-    "tertiaryColor": "#0f172a",
-    "clusterBkg": "#0b1220cc",
-    "clusterBorder": "#38bdf880",
-    "titleColor": "#e2e8f0"
-  },
-  "flowchart": {
-    "nodeSpacing": 36,
-    "rankSpacing": 44,
-    "padding": 18,
-    "htmlLabels": true,
-    "curve": "basis",
-    "useMaxWidth": true
-  }
+ "theme": "dark",
+ "themeVariables": {
+ "fontSize": "15px",
+ "fontFamily": "Inter, ui-sans-serif, system-ui, sans-serif",
+ "primaryColor": "#0ea5e9",
+ "primaryTextColor": "#f8fafc",
+ "primaryBorderColor": "#38bdf8",
+ "lineColor": "#67e8f9",
+ "secondaryColor": "#1e293b",
+ "tertiaryColor": "#0f172a",
+ "clusterBkg": "#0b1220cc",
+ "clusterBorder": "#38bdf880",
+ "titleColor": "#e2e8f0"
+ },
+ "flowchart": {
+ "nodeSpacing": 36,
+ "rankSpacing": 44,
+ "padding": 18,
+ "htmlLabels": true,
+ "curve": "basis",
+ "useMaxWidth": true
+ }
 }}%%
 flowchart TB
 
-    classDef edge fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f0f9ff
-    classDef core fill:#134e4a,stroke:#2dd4bf,stroke-width:2px,color:#f0fdfa
-    classDef ai fill:#3b0764,stroke:#e879f9,stroke-width:2px,color:#fdf4ff
-    classDef app fill:#1e1b4b,stroke:#c4b5fd,stroke-width:2px,color:#eef2ff
-    classDef host fill:#052e16,stroke:#4ade80,stroke-width:2px,color:#f0fdf4
-    classDef orch fill:#312e81,stroke:#a5b4fc,stroke-width:2px,color:#eef2ff
+ classDef edge fill:#0c4a6e,stroke:#38bdf8,stroke-width:2px,color:#f0f9ff
+ classDef core fill:#134e4a,stroke:#2dd4bf,stroke-width:2px,color:#f0fdfa
+ classDef ai fill:#3b0764,stroke:#e879f9,stroke-width:2px,color:#fdf4ff
+ classDef app fill:#1e1b4b,stroke:#c4b5fd,stroke-width:2px,color:#eef2ff
+ classDef host fill:#052e16,stroke:#4ade80,stroke-width:2px,color:#f0fdf4
+ classDef orch fill:#312e81,stroke:#a5b4fc,stroke-width:2px,color:#eef2ff
 
-    subgraph CONSUMERS["Hybrid consumers"]
-        W["Weaver<br/>LangGraph multi-tenant"]
-        P["Domain portals<br/>Aqua | Soil | Blue | Sting"]
-        A["Aether companion<br/>skills | HITL | computer use"]
-        S["coastal-alpine-stack<br/>compose / K3s"]
-    end
+ subgraph CONSUMERS["Hybrid consumers"]
+ W["Weaver<br/>LangGraph multi-tenant"]
+ P["Domain portals<br/>Aqua | Soil | Blue | Sting"]
+ A["Aether companion<br/>skills | HITL | computer use"]
+ S["coastal-alpine-stack<br/>compose / K3s"]
+ end
 
-    subgraph SDK["coastal_alpine_core package"]
-        G["SecurityGuard / input_guard_check"]
-        T["TelemetryTracker"]
-        C["SovereignOllamaClient"]
-        FW["DataFlywheel"]
-        PC["portal_core<br/>AIAgent | MQTT | AV | Hardware"]
-    end
+ subgraph SDK["coastal_alpine_core package"]
+ G["SecurityGuard / input_guard_check"]
+ T["TelemetryTracker"]
+ C["SovereignOllamaClient"]
+ FW["DataFlywheel"]
+ PC["portal_core<br/>AIAgent | MQTT | AV | Hardware"]
+ end
 
-    subgraph AI["Local AI"]
-        O["Ollama<br/>Gemma / Qwen class"]
-        HAI["Hailo-10H NPU<br/>edge vision optional"]
-    end
+ subgraph AI["Local AI"]
+ O["Ollama<br/>Gemma / Qwen class"]
+ HAI["Hailo-10H NPU<br/>edge vision optional"]
+ end
 
-    subgraph HOSTS["Dual-platform hosts"]
-        WIN["Windows 10/11<br/>install.ps1 | venv"]
-        LIN["Linux / RPi OS<br/>install.sh | venv / uv"]
-        RPI["RPi 5 16GB + Hailo-10H<br/>production edge"]
-    end
+ subgraph HOSTS["Dual-platform hosts"]
+ WIN["Windows 10/11<br/>install.ps1 | venv"]
+ LIN["Linux / RPi OS<br/>install.sh | venv / uv"]
+ RPI["RPi 5 16GB + Hailo-10H<br/>production edge"]
+ end
 
-    W & P & A & S --> G & T & C & FW & PC
-    C --> O
-    PC --> HAI
-    T --> RPI
-    SDK -.-> HOSTS
+ W & P & A & S --> G & T & C & FW & PC
+ C --> O
+ PC --> HAI
+ T --> RPI
+ SDK -.-> HOSTS
 
-    class W,P,A,S app
-    class G,T,C,FW,PC core
-    class O,HAI ai
-    class WIN,LIN,RPI host
+ class W,P,A,S app
+ class G,T,C,FW,PC core
+ class O,HAI ai
+ class WIN,LIN,RPI host
 ```
 
  | Layer | Components | Role |
@@ -159,7 +158,7 @@ flowchart TB
 ### One-line install (recommended)
 
 <details open>
-<summary><strong>ðŸ§ Linux / macOS</strong></summary>
+<summary><strong> Linux / macOS</strong></summary>
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/fivepanelhat/Coastal-Alpine-Core/main/install.sh | bash
@@ -168,7 +167,7 @@ curl -fsSL https://raw.githubusercontent.com/fivepanelhat/Coastal-Alpine-Core/ma
 </details>
 
 <details>
-<summary><strong>ðŸªŸ Windows (PowerShell)</strong></summary>
+<summary><strong> Windows (PowerShell)</strong></summary>
 
 ```powershell
 irm https://raw.githubusercontent.com/fivepanelhat/Coastal-Alpine-Core/main/install.ps1 | iex
@@ -181,7 +180,7 @@ irm https://raw.githubusercontent.com/fivepanelhat/Coastal-Alpine-Core/main/inst
 ### Manual install
 
 <details open>
-<summary><strong>ðŸ§ Linux / macOS (Bash)</strong></summary>
+<summary><strong> Linux / macOS (Bash)</strong></summary>
 
 ```bash
 git clone https://github.com/fivepanelhat/Coastal-Alpine-Core.git
@@ -204,7 +203,7 @@ sudo apt-get install -y python3-dev python3-venv python3-pip git build-essential
 </details>
 
 <details>
-<summary><strong>ðŸªŸ Windows (PowerShell)</strong></summary>
+<summary><strong> Windows (PowerShell)</strong></summary>
 
 ```powershell
 git clone https://github.com/fivepanelhat/Coastal-Alpine-Core.git
@@ -240,16 +239,16 @@ client = SovereignOllamaClient(default_model="gemma4:e4b")
 # Check security
 prompt = "Format C:\\"
 is_safe = input_guard_check(prompt)
-print(f"Is Prompt Safe? {is_safe}")  # Expected: False (Security alert triggered)
+print(f"Is Prompt Safe? {is_safe}") # Expected: False (Security alert triggered)
 
 # Measure edge execution performance
 measurement = TelemetryTracker.measure_latency("gemma_generation")
 response = client.generate("Evaluate crop health status: OK")
-metrics = TelemetryTracker.complete_measurement(measurement, token_count=len(response.get("response", "").split()))
+metrics = TelemetryTracker.complete_measurement(measurement, token_count=len(response.get("response", ).split()))
 print(metrics)
 ```
 
 ---
 
 *Built with focus on data sovereignty and edge intelligence.*
-**Coastal Alpine Tech Limited  New Plymouth, Taranaki, New Zealand.**
+**Coastal Alpine Tech Limited New Plymouth, Taranaki, New Zealand.**

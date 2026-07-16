@@ -10,8 +10,8 @@ This repository contains the shared architectural core, data models, and cryptog
 
 | Version | Supported |
 | ------- | --------- |
-| 0.5.x   | Yes       |
-| < 0.5   | Best-effort patches only |
+| 0.5.x | Yes |
+| < 0.5 | Best-effort patches only |
 
 ## Vulnerability Disclosure
 
@@ -35,7 +35,7 @@ Do **not** open a public issue for security flaws in Core.
 
 | ID | Package / surface | Severity | Mitigation in this repo |
 | -- | ----------------- | -------- | ----------------------- |
-| GHSA-f4j7-r4q5-qw2c (CVE-2026-45829) | `chromadb` ≤1.5.9 pre-auth RCE | Critical | Not a Core direct dep; stack docs require **localhost-only** bind, no `trust_remote_code`, network policy. Monitor for fixed release. |
+| GHSA-f4j7-r4q5-qw2c (CVE-2026-45829) | `chromadb` 1.5.9 pre-auth RCE | Critical | Not a Core direct dep; stack docs require **localhost-only** bind, no `trust_remote_code`, network policy. Monitor for fixed release. |
 | GHSA-f4xh-w4cj-qxq8 | `langsmith` <0.8.18 file read | High | Floor `langsmith>=0.8.18` in consumers (Weaver / stack). |
 | GHSA-4xgf-cpjx-pc3j | `pydantic-settings` <2.14.2 symlink escape | Medium | Floor `pydantic-settings>=2.14.2` in consumers. |
 | CodeQL `actions/missing-workflow-permissions` | GITHUB_TOKEN scope | Warning | CI workflows set `permissions: contents: read` by default. |
@@ -43,10 +43,10 @@ Do **not** open a public issue for security flaws in Core.
 
 ## Built-in controls
 
-- **`SecurityGuard` / `input_guard_check`** — precompiled prompt-injection, SSRF lure, SQL, and credential patterns (v0.5.4+).
-- **`tenant_isolated_query`** — hard fail on tenant context mismatch.
-- **`device_posture_check`** — firmware hash + telemetry Z-score anomalies.
-- **SecOps CI** — Bandit SAST, Gitleaks, scheduled red-team.
+- **`SecurityGuard` / `input_guard_check`** - precompiled prompt-injection, SSRF lure, SQL, and credential patterns (v0.5.4+).
+- **`tenant_isolated_query`** - hard fail on tenant context mismatch.
+- **`device_posture_check`** - firmware hash + telemetry Z-score anomalies.
+- **SecOps CI** - Bandit SAST, Gitleaks, scheduled red-team.
 
 ## Quality gates
 

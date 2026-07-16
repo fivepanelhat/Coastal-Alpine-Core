@@ -24,21 +24,21 @@ from .mqtt_client import MQTTClient
 # package (and each submodule, so patches hit the SAME module objects).
 _sys.modules.setdefault("portal_core", _sys.modules[__name__])
 for _sub in ("ai_agent", "av_capture", "config", "hardware_control", "media_pruner", "mqtt_client"):
-    _sys.modules.setdefault(f"portal_core.{_sub}", _sys.modules[f"{__name__}.{_sub}"])
+ _sys.modules.setdefault(f"portal_core.{_sub}", _sys.modules[f"{__name__}.{_sub}"])
 
 __all__ = [
-    "AIAgent",
-    "OptimizationPlan",
-    "MQTTClient",
-    "AVCapture",
-    "MediaPruner",
-    "HardwareController",
-    "ActionState",
-    "ValveAction",
-    "load_aquaguard_config",
-    "load_soilguard_config",
-    "load_bluemoon_config",
-    "AquaGuardConfig",
-    "SoilGuardConfig",
-    "BlueMoonConfig",
+ "AIAgent",
+ "OptimizationPlan",
+ "MQTTClient",
+ "AVCapture",
+ "MediaPruner",
+ "HardwareController",
+ "ActionState",
+ "ValveAction",
+ "load_aquaguard_config",
+ "load_soilguard_config",
+ "load_bluemoon_config",
+ "AquaGuardConfig",
+ "SoilGuardConfig",
+ "BlueMoonConfig",
 ]
