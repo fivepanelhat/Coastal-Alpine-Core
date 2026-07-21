@@ -61,3 +61,11 @@ Do **not** open a public issue for security flaws in Core.
 | Critical | 24h | 48h mitigation + version bump |
 | High | 48h | 5 business days |
 | Medium / Low | 5 business days | Next minor release |
+
+## Fleet security principles
+
+- **No silent exfiltration** of personal or tenant operational data
+- Prefer **local-first** processing; third-party AI only with explicit operator configuration and UI/docs disclosure
+- Report vulnerabilities via GitHub Security Advisories or the maintainer contact on the org profile
+- High-stakes production changes require human approval (HITL)
+
