@@ -12,7 +12,7 @@ license = { text = "Proprietary" }
 authors = [{ name = "Wayne Roberts", email = "wayne@coastalalpine.tech" }]
 dependencies = [
     "PyJWT>=2.8.0",
-    "cryptography>=42.0.0",
+    "cryptography>=50.0.0",
     "requests>=2.31.0",
     "ollama>=0.3.0",
     "pydantic>=2.5,<3.0",
