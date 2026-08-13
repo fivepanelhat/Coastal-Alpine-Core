@@ -6,10 +6,20 @@ import hmac
 import logging
 import math
 import re
+import unicodedata
 from collections import deque
 from dataclasses import dataclass
 
 logger = logging.getLogger("CoastalAlpineCore.Security")
+
+# Prompts beyond this size are rejected outright: oversized inputs are a
+# memory/latency DoS vector on 16GB-class edge nodes before they are a
+# legitimate query.
+MAX_PROMPT_CHARS = 32_000
+
+# Zero-width and BOM characters used to split trigger words past regex
+# filters (e.g. "ig<ZWSP>nore previous instructions").
+_ZERO_WIDTH_RE = re.compile("[\u200b\u200c\u200d\u2060\ufeff]")
 
 
 @dataclass
@@ -74,6 +84,21 @@ class SecurityGuard:
         Returns structured result instead of simple bool.
         """
         text = prompt if isinstance(prompt, str) else str(prompt)
+        if len(text) > MAX_PROMPT_CHARS:
+            logger.warning(
+                "Security Alert: oversized prompt rejected (%d chars > %d limit)",
+                len(text),
+                MAX_PROMPT_CHARS,
+            )
+            return SecurityResult(
+                is_safe=False,
+                reason=f"Prompt exceeds {MAX_PROMPT_CHARS} character limit",
+                severity="medium",
+            )
+        # Strip obfuscation layers before matching: NFKC folds fullwidth /
+        # compatibility glyphs, and zero-width characters are deleted so
+        # "ig<ZWSP>nore" cannot slip past word-boundary patterns.
+        text = _ZERO_WIDTH_RE.sub("", unicodedata.normalize("NFKC", text))
         for compiled in self._compiled:
             if compiled.search(text):
                 logger.warning(
@@ -103,7 +128,16 @@ def tenant_isolated_query(query_tenant_id: str, active_tenant_id: str) -> bool:
     """
     Enforces strict tenant scoping to prevent cross-contamination.
     Logs violation for audit and potential flywheel data.
+
+    Fail-closed: missing, empty, or non-string tenant identifiers are treated
+    as violations — two absent tenant contexts must never "match".
     """
+    if not isinstance(query_tenant_id, str) or not isinstance(active_tenant_id, str):
+        logger.error("SECURITY VIOLATION: non-string tenant identifier rejected")
+        return False
+    if not query_tenant_id or not active_tenant_id:
+        logger.error("SECURITY VIOLATION: empty tenant identifier rejected")
+        return False
     if query_tenant_id != active_tenant_id:
         logger.error(
             "SECURITY VIOLATION: Tenant context mismatch! Query=%s vs Session=%s",
@@ -114,15 +148,62 @@ def tenant_isolated_query(query_tenant_id: str, active_tenant_id: str) -> bool:
     return True
 
 
-# Registered cryptographic baselines for authorized edge hardware profiles
-VALID_FIRMWARE_HASHES = {
-    "ESP32_MANAKAI_SOIL": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",  # pragma: allowlist secret
-    "PI5_STING_VISION": "7f83b1657ff1fc53b92c48da1bf5553d684d054611ba4f1f4d9240d8bf1b3a1a",  # pragma: allowlist secret
-}
+# Well-known insecure digests that must never be accepted as production baselines.
+# (SHA-256 of empty string; SHA-256 of "Hello World" — common scaffolding placeholders.)
+_PLACEHOLDER_FIRMWARE_DIGESTS = frozenset(
+    {
+        "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+        "7f83b1657ff1fc53b92c48da1bf5553d684d054611ba4f1f4d9240d8bf1b3a1a",
+    }
+)
+
+_SHA256_HEX_RE = re.compile(r"^[0-9a-f]{64}$")
+
+# Registered cryptographic baselines for authorized edge hardware profiles.
+# Empty by default: production fleets must register real digests via
+# register_firmware_baseline() or CAT_FIRMWARE_HASHES_JSON. Fail-closed.
+VALID_FIRMWARE_HASHES: dict[str, str] = {}
+
+
+def _is_placeholder_digest(digest: str) -> bool:
+    return digest.lower() in _PLACEHOLDER_FIRMWARE_DIGESTS
+
+
+def _is_valid_sha256_hex(digest: str) -> bool:
+    return bool(isinstance(digest, str) and _SHA256_HEX_RE.fullmatch(digest.lower()))
+
+
+def register_firmware_baseline(device_type: str, firmware_hash: str) -> None:
+    """Register an authorized firmware digest for a device profile.
+
+    Rejects non-SHA-256 hex strings and known placeholder digests so scaffolding
+    hashes can never become a production trust root.
+    """
+    if not isinstance(device_type, str) or not device_type.strip():
+        raise ValueError("device_type must be a non-empty string")
+    if not _is_valid_sha256_hex(firmware_hash):
+        raise ValueError("firmware_hash must be a 64-char lowercase hex SHA-256 digest")
+    normalized = firmware_hash.lower()
+    if _is_placeholder_digest(normalized):
+        raise ValueError(
+            "firmware_hash is a known placeholder digest and cannot be registered "
+            "(empty-string or Hello-World SHA-256)"
+        )
+    VALID_FIRMWARE_HASHES[device_type] = normalized
+
+
+def clear_firmware_baselines() -> None:
+    """Clear all registered firmware baselines (tests / reconfiguration)."""
+    VALID_FIRMWARE_HASHES.clear()
 
 # In-memory rolling telemetry cache (sliding window per device)
 HISTORY_WINDOW: dict[str, deque[float]] = {}
 HISTORY_MAXLEN = 50
+
+# Cap on distinct device histories: an attacker cycling spoofed device_ids
+# must not be able to grow this dict without bound (memory DoS). Oldest
+# entries are evicted FIFO once the cap is hit.
+MAX_TRACKED_DEVICES = 1024
 
 
 def device_posture_check(device_id, payload):
@@ -130,18 +211,29 @@ def device_posture_check(device_id, payload):
     Continuous device posture verification and Z-score telemetry anomaly detection.
     """
     try:
+        if not isinstance(payload, dict):
+            logger.warning("[SECOPS ANOMALY] Non-dict payload from %s rejected.", device_id)
+            return False, "MALFORMED_PAYLOAD"
+
         posture = payload.get("posture", {})
         telemetry = payload.get("telemetry", {})
+        if not isinstance(posture, dict) or not isinstance(telemetry, dict):
+            logger.warning("[SECOPS ANOMALY] Malformed sub-structures from %s.", device_id)
+            return False, "MALFORMED_PAYLOAD"
 
+        # Constant-time comparison: the firmware digest check must not leak
+        # match-prefix length via timing. Placeholder digests fail closed even
+        # if somehow present in VALID_FIRMWARE_HASHES.
         expected_hash = VALID_FIRMWARE_HASHES.get(payload.get("device_type"))
         # Constant-time compare (Diamond): avoids leaking hash prefix via timing.
         provided_hash = posture.get("firmware_hash") or ""
         if not expected_hash or not hmac.compare_digest(str(provided_hash), expected_hash):
             logger.warning(
-                "[SECOPS ANOMALY] Posture validation failed for %s — rogue firmware?",
+                "[SECOPS ANOMALY] Posture validation failed for %s — rogue firmware? (%s)",
                 device_id,
+                reason,
             )
-            return False, "INVALID_POSTURE_HASH"
+            return False, reason
 
         if "sec_daemon" not in posture.get("running_processes", []):
             logger.warning(
@@ -151,7 +243,22 @@ def device_posture_check(device_id, payload):
             return False, "MUTATED_PROCESS_STATE"
 
         current_val = float(telemetry.get("value", 0))
+        # NaN/inf poisoning defense: one NaN in the window turns every later
+        # mean/std into NaN, silently disabling the Z-score detector.
+        if not math.isfinite(current_val):
+            logger.warning(
+                "[SECOPS ANOMALY] Non-finite telemetry value from %s rejected.", device_id
+            )
+            return False, "TELEMETRY_OUTLIER"
+
         if device_id not in HISTORY_WINDOW:
+            if len(HISTORY_WINDOW) >= MAX_TRACKED_DEVICES:
+                evicted = next(iter(HISTORY_WINDOW))
+                HISTORY_WINDOW.pop(evicted, None)
+                logger.warning(
+                    "[SECOPS] Device history cap reached; evicted oldest entry %s.",
+                    evicted,
+                )
             HISTORY_WINDOW[device_id] = deque(maxlen=HISTORY_MAXLEN)
 
         history = HISTORY_WINDOW[device_id]

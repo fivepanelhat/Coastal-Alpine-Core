@@ -22,6 +22,14 @@ function safeParseTelemetry(rawPayload) {
             return null;
         }
 
+        // nodeId is echoed into logs and stored in the local DB: constrain it
+        // to a strict allowlist so a hostile packet can't inject log lines
+        // (newlines / ANSI) or oversized identifiers downstream.
+        if (!/^[A-Za-z0-9._-]{1,64}$/.test(parsedData.nodeId)) {
+            console.warn("[VALIDATION FAILED] Packet dropped: nodeId failed strict identifier allowlist.");
+            return null;
+        }
+
         if (parsedData.reading === undefined || typeof parsedData.reading !== 'number') {
             console.warn(`[VALIDATION FAILED] Packet dropped from node [${parsedData.nodeId}]: Missing or invalid numeric metric.`);
             return null;

@@ -33,7 +33,52 @@ All downstream portals should depend on tagged releases of this package only.
 5. Dependabot will open PRs in the portals to update the pin
 5. Portal CI will verify against the new core version
 
+## Hybridisation (Kiwi Edge)
+
+Coastal-Alpine-Core is the shared foundation hybridised across:
+
+| Consumer | Integration |
+| :--- | :--- |
+| **Weaver** | Guards, tenant isolation helpers, Ollama client, telemetry on routing paths |
+| **Domain portals** | `portal_core` (AIAgent, MQTT, AV, Hardware), DataFlywheel |
+| **Aether** | Architecture / sovereignty skills; companion for HITL and remediation |
+| **coastal-alpine-stack** | Editable workspace package for compose/K3s monorepo |
+
+```mermaid
+%%{init: { "theme": "dark", "flowchart": { "curve": "basis", "useMaxWidth": true } }}%%
+flowchart LR
+    subgraph SDK[coastal_alpine_core]
+        G[SecurityGuard]
+        T[TelemetryTracker]
+        O[SovereignOllamaClient]
+        F[DataFlywheel]
+        P[portal_core]
+    end
+    W[Weaver] --> SDK
+    Portals[Aqua Soil Blue Sting] --> SDK
+    A[Aether] -.-> SDK
+    S[coastal-alpine-stack] --> SDK
+    subgraph HOSTS[Dual platform]
+        Win[Windows]
+        Lin[Linux]
+        RPi[RPi 5 + Hailo]
+    end
+    SDK -.-> HOSTS
+```
+
+## Dual-platform development
+
+| Host | Installer | Notes |
+| :--- | :--- | :--- |
+| **Linux / macOS** | `install.sh` | `python3-venv`, optional `uv` |
+| **Windows** | `install.ps1` | PowerShell; Git + Python on PATH |
+| **RPi 5 edge** | same as Linux | + Hailo runtime for NPU vision portals |
+
+See [DEVELOPER_SETUP.md](./DEVELOPER_SETUP.md) and [README.md](./README.md).
+
 ## Local Development
+
+### Linux / macOS
 
 ```bash
 # Recommended
@@ -41,4 +86,19 @@ uv sync
 uv run pytest
 ruff check .
 ruff format .
+
+# Or pip
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e ".[dev]"
+pytest
+```
+
+### Windows (PowerShell)
+
+```powershell
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -e ".[dev]"
+pytest
+ruff check .
 ```

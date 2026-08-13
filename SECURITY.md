@@ -61,3 +61,23 @@ Do **not** open a public issue for security flaws in Core.
 | Critical | 24h | 48h mitigation + version bump |
 | High | 48h | 5 business days |
 | Medium / Low | 5 business days | Next minor release |
+
+## Fleet security principles
+
+- **No silent exfiltration** of personal or tenant operational data
+- Prefer **local-first** processing; third-party AI only with explicit operator configuration and UI/docs disclosure
+- Report vulnerabilities via GitHub Security Advisories or the maintainer contact on the org profile
+- High-stakes production changes require human approval (HITL)
+
+## Data sales and third parties
+
+- **We do not sell personal information or customer operational data to third parties.**
+- Optional AI or cloud services run only when configured by the operator; processing must be disclosed (in-product and/or docs).
+- Prefer local-first paths so third-party transfer is unnecessary by default.
+
+## NZ Privacy Act and Te Mana Raraunga
+
+- Design in accordance with the **Privacy Act 2020**.
+- Operate in accordance with **Te Mana Raraunga** principles for Māori data sovereignty interests.
+- Align AI features with **NZ AI safety** / responsible AI expectations (HITL, transparency, no silent training on private content).
+
