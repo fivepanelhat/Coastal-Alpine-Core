@@ -126,11 +126,8 @@ class EffectJournal:
             return
         try:
             self.audit_path.parent.mkdir(parents=True, exist_ok=True)
-            line = json.dumps(
-                {"event": event, **asdict(rec)},
-                default=str,
-            )
+            line = json.dumps({"event": event, **asdict(rec)}, default=str)
             with self.audit_path.open("a", encoding="utf-8") as fh:
                 fh.write(line + "\n")
         except OSError as exc:
-            logger.debug("Effect audit write failed: %s", exp if False else exc)
+            logger.debug("Effect audit write failed: %s", exc)
