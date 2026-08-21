@@ -42,6 +42,7 @@ Coastal-Alpine-Core is the shared foundation hybridised across:
 | **Weaver** | Guards, tenant isolation helpers, Ollama client, telemetry on routing paths |
 | **Domain portals** | `portal_core` (AIAgent, MQTT, AV, Hardware), DataFlywheel |
 | **Aether** | Architecture / sovereignty skills; companion for HITL and remediation |
+| **CAT Agent Harness** | Guards, telemetry, SovereignOllamaClient as provider plugins |
 | **coastal-alpine-stack** | Editable workspace package for compose/K3s monorepo |
 
 ```mermaid
@@ -57,6 +58,7 @@ flowchart LR
     W[Weaver] --> SDK
     Portals[Aqua Soil Blue Sting] --> SDK
     A[Aether] -.-> SDK
+    H[CAT Agent Harness] --> SDK
     S[coastal-alpine-stack] --> SDK
     subgraph HOSTS[Dual platform]
         Win[Windows]
