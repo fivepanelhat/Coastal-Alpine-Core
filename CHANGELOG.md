@@ -10,6 +10,11 @@
 
 All notable changes to the shared `coastal_alpine_core` package will be documented in this file.
 
+## [0.5.7] - 2026-08-21
+
+### Added
+- **SessionEvent / SessionEventStore** (`session_events.py`): append-only, tenant-aware event stream for Weaver and Aether agent turns (Sprint A Phase 1). Complements DataFlywheel Trajectory with finer-grained HITL-ready events, list-by-session, and resume-from-event-id. CAT stamp: local-first JSONL, edge-safe rotation, no secrets in payloads.
+
 ## [0.5.6] - 2026-07-16
 
 ### Security
