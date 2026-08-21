@@ -27,9 +27,10 @@ from .session_events import (
     SessionEventStore,
     make_event,
 )
+from .session_flywheel import record_session_trajectory
 from .telemetry import DataFlywheel, TelemetryTracker, Trajectory, log_performance
 
-__version__ = "0.5.8"
+__version__ = "0.5.9"
 
 __all__ = [
     "TelemetryTracker",
@@ -51,6 +52,7 @@ __all__ = [
     "tenant_isolated_query",
     "DataFlywheel",
     "Trajectory",
+    "record_session_trajectory",
     "SessionEvent",
     "SessionEventStore",
     "make_event",
