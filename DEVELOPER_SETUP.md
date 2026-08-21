@@ -95,8 +95,10 @@ ruff check .
 Portals and Weaver should pin **tagged releases only**:
 
 ```bash
-pip install "git+https://github.com/fivepanelhat/Coastal-Alpine-Core.git@v0.5.4"
+pip install "git+https://github.com/fivepanelhat/Coastal-Alpine-Core.git@v0.5.9"
 ```
+
+Current release: https://github.com/fivepanelhat/Coastal-Alpine-Core/releases/tag/v0.5.9
 
 ---
 
@@ -120,9 +122,9 @@ Or use stack installers: `install.sh` / `install.ps1`.
 
 | Repo | How it uses Core |
 | :--- | :--- |
-| **Weaver** | SecurityGuard, tenant isolation, Ollama client |
+| **Weaver** | SecurityGuard, SessionEvent, Trajectory, Ollama provider |
 | **Domain portals** | portal_core, telemetry, flywheel |
-| **Aether** | Architecture skills + stack awareness |
+| **Aether** | Soft SessionEvent + Trajectory bridges |
 | **coastal-alpine-stack** | Editable workspace member |
 
 ---
@@ -131,5 +133,5 @@ Or use stack installers: `install.sh` / `install.ps1`.
 
 1. Bump version in `pyproject.toml`
 2. Push to `main`
-3. Tag and push: `git tag v0.5.5 && git push origin v0.5.5`
+3. Tag and push: `git tag v0.5.9 && git push origin v0.5.9`
 4. Dependabot / portals update pins
