@@ -3,6 +3,15 @@ coastal-alpine-core: Shared utilities for Taranaki-based Coastal Alpine Tech Edg
 """
 
 from .ollama_client import SovereignOllamaClient
+from .providers import (
+    LLMProvider,
+    ProviderProfile,
+    get_profile,
+    get_provider,
+    list_providers,
+    provider_from_profile,
+    register_provider,
+)
 from .security import (
     SecurityGuard,
     SecurityResult,
@@ -20,12 +29,19 @@ from .session_events import (
 )
 from .telemetry import DataFlywheel, TelemetryTracker, Trajectory, log_performance
 
-__version__ = "0.5.7"
+__version__ = "0.5.8"
 
 __all__ = [
     "TelemetryTracker",
     "log_performance",
     "SovereignOllamaClient",
+    "LLMProvider",
+    "ProviderProfile",
+    "get_provider",
+    "get_profile",
+    "provider_from_profile",
+    "list_providers",
+    "register_provider",
     "SecurityGuard",
     "SecurityResult",
     "input_guard_check",
