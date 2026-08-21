@@ -17,7 +17,7 @@ from __future__ import annotations
 import ast
 import logging
 from dataclasses import dataclass, field
-from typing import Any, Callable, Mapping, Optional
+from typing import Any, Callable, Mapping
 
 logger = logging.getLogger("coastal_alpine_core.code_mode")
 
@@ -81,7 +81,7 @@ _ALLOWED_NODE_TYPES = (
     ast.keyword,
     ast.arguments,
     ast.arg,
-    ast.FunctionDef,  # local helpers only; no decorators
+    ast.FunctionDef,
     ast.Lambda,
     ast.comprehension,
     ast.ListComp,
@@ -92,7 +92,6 @@ _ALLOWED_NODE_TYPES = (
     ast.IfExp,
     ast.JoinedStr,
     ast.FormattedValue,
-    # operators
     ast.Add,
     ast.Sub,
     ast.Mult,
@@ -119,14 +118,12 @@ _ALLOWED_NODE_TYPES = (
 
 def _validate_ast(tree: ast.AST) -> None:
     for node in ast.walk(tree):
-        if not isinstance(node, _ALLOWED_NODE_TYPES):
-            raise ValueError(f"Disallowed syntax: {type(node).__name__}")
         if isinstance(node, (ast.Import, ast.ImportFrom)):
             raise ValueError("Imports are not allowed in code mode")
-        if isinstance(node, ast.Attribute):
-            # block dunder attribute access
-            if str(node.attr).startswith("_"):
-                raise ValueError("Private/dunder attribute access blocked")
+        if not isinstance(node, _ALLOWED_NODE_TYPES):
+            raise ValueError(f"Disallowed syntax: {type(node).__name__}")
+        if isinstance(node, ast.Attribute) and str(node.attr).startswith("_"):
+            raise ValueError("Private/dunder attribute access blocked")
         if isinstance(node, ast.Name) and node.id.startswith("__"):
             raise ValueError("Dunder names blocked")
         if isinstance(node, ast.FunctionDef) and node.decorator_list:
@@ -136,18 +133,6 @@ def _validate_ast(tree: ast.AST) -> None:
 class CodeModeRunner:
     """Execute restricted agent-authored snippets against a tool registry."""
 
-    def __init(
-        self,
-        tools: Mapping[str, ToolFn],
-        *,
-        hitl: HitlFn | None = None,
-        max_chars: int = 4000,
-    ):
-        self.tools = dict(tools)
-        self.hitl = hitl
-        self.max_chars = max_chars
-
-    # fix typo - use proper __init__
     def __init__(
         self,
         tools: Mapping[str, ToolFn],
@@ -213,10 +198,10 @@ class CodeModeRunner:
             exec(compiled, globals_dict, locals_dict)  # noqa: S102 — intentional sandbox
             output = locals_dict.get("result", locals_dict.get("output"))
             return CodeModeResult(success=True, output=output, tool_calls=call_log)
-        except Exception as exc:
-            logger.debug("Code mode execution failed: %s", exc)
+        except Exception as exp:
+            logger.debug("Code mode execution failed: %s", exp)
             return CodeModeResult(
                 success=False,
-                error=str(exc)[:300],
+                error=str(exp)[:300],
                 tool_calls=call_log,
             )
