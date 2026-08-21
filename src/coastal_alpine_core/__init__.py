@@ -12,9 +12,15 @@ from .security import (
     register_firmware_baseline,
     tenant_isolated_query,
 )
+from .session_events import (
+    EVENT_TYPES,
+    SessionEvent,
+    SessionEventStore,
+    make_event,
+)
 from .telemetry import DataFlywheel, TelemetryTracker, Trajectory, log_performance
 
-__version__ = "0.5.6"
+__version__ = "0.5.7"
 
 __all__ = [
     "TelemetryTracker",
@@ -29,5 +35,9 @@ __all__ = [
     "tenant_isolated_query",
     "DataFlywheel",
     "Trajectory",
+    "SessionEvent",
+    "SessionEventStore",
+    "make_event",
+    "EVENT_TYPES",
     "__version__",
 ]
