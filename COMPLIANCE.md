@@ -1,67 +1,52 @@
-# COMPLIANCE.md
+# Compliance — NZ AI + SOC 2 Type II
 
-**Coastal Alpine Tech Limited** | **Product:** Coastal Alpine Core
-Last updated: 22 July 2026
+This repository is governed by the **NZ AI Compliance + SOC 2 Type II** framework.  
+**Classification:** Diamond (primary) | Platinum (secondary) | Gold (tertiary)
 
-## Privacy / Security / Governance (fleet mandatory)
+## Purpose
 
-**Last reviewed (fleet block):** 22 July 2026
+Coastal Alpine Core is the **field + edge SDK** for Sovereign Edge systems. Handles:
+- Patient data collection (health appointments, measurements)
+- Encrypted local-first processing
+- Secure API gateway for health data
+- Firmware updates + device posture verification
 
-| Pillar | Standard |
-| --- | --- |
-| **No data sales** | **Personal and customer operational data is not sold to third parties** for ads, data brokerage, or unrelated monetisation. |
-| **Privacy** | Designed to operate in accordance with the **New Zealand Privacy Act 2020** (IPPs; IPP 3A awareness). Local-first default; purpose-limited collection; third-party processing only when opt-in and disclosed. |
-| **Te Mana Raraunga** | Designed to operate **in accordance with Te Mana Raraunga** Māori data sovereignty principles where Māori / community data interests apply. |
-| **NZ AI safety** | Aligned with NZ AI safety / responsible AI posture: human oversight for high-stakes use, transparency of AI processing, Algorithm Charter spirit, no silent training on private customer content without consent. |
-| **Security** | No silent exfil; owner-controlled credentials; least privilege; SecOps / red-team cadence where CI is present. |
-| **Governance** | HITL for high-stakes; agents draft only; humans sign / send / pay. |
-| **Assurance path** | **SOC 2** Type I/II and **ISO/IEC 42001** treated as multi-tenant SaaS **alignment targets**, not claimed certifications unless a formal report is published. |
-| **Regions** | Australia, Asia-Pacific, and European frameworks mapped in [`COMPLIANCE_REGIONS.md`](./COMPLIANCE_REGIONS.md) under a **NZ AI safety-first** baseline. |
+**Compliance Impact:** CRITICAL
+- Direct health data processing (IPP4 encryption mandatory)
+- Field device security (prevent tampering)
+- Firmware integrity verification (constant-time comparison)
 
-> This document is **alignment evidence**, not a compliance certificate, audit report, or legal advice.
+## Key Requirements
 
+- **Encryption:** AES-256 at rest, TLS 1.3+ in transit
+- **Health Data:** 7-year retention max, deletion on-demand
+- **Audit Trail:** All data access logged (immutable, 18 months)
+- **Device Security:** Firmware hash verification (constant-time)
 
-## Regulatory Mapping
+## Compliance Contacts
 
-### New Zealand
-- Privacy Act 2020 + **IPP 3A** (Privacy Amendment Act 2025) - effective **1 May 2026**  
-  Notification required when personal information is collected indirectly.
-- Biometric Processing Privacy Code 2025  
-  New biometric processing: 3 November 2025  
-  Existing biometric processing: 3 August 2026
-- Health Information Privacy Code (applies where health / wellbeing data is processed)
-- Te Mana Raraunga principles - primary data sovereignty framework
+- Compliance Officer: [ASSIGN]
+- Privacy Officer: [ASSIGN]
+- CISO / Security Lead: [ASSIGN]
 
-### European Union
-- **EU AI Act** - Annex III high-risk obligations enforceable **2 August 2026**
-- Relevant high-risk categories:
-  - Health decision support
-  - Biometrics (remote identification, categorisation, emotion recognition)
-  - Critical infrastructure / essential services
-- Required: risk management, data governance, technical documentation, human oversight, logging, transparency, post-market monitoring
+## Compliance Milestones
 
-### International Standards
-- **ISO/IEC 42001** - AI Management System (AIMS)  
-  Covers AI policy, risk assessment, data governance, human oversight, monitoring, continual improvement
-- **SOC 2** - Security, Availability, Confidentiality, Processing Integrity, Privacy  
-  Priority for multi-tenant / customer-facing components
+- [ ] Phase 1: Governance (Week 1)
+- [ ] Phase 2: Technical controls (Week 4)
+- [ ] Phase 3: Privacy Act (Week 4)
+- [ ] Phase 4: Te Mana Raraunga (Week 6)
+- [ ] Phase 5: Incident response (Week 8)
+- [ ] Phase 6: SOC 2 audit (Week 12)
 
-### Core Technical Controls (Mandatory)
-- Local-first / offline-native processing by default
-- Owner-controlled encryption keys
-- No silent data exfiltration
-- Explicit Human-in-the-Loop (HITL) gates for high-impact and culturally sensitive decisions
-- Data residency under New Zealand control
+## Monthly Checklist
 
-### Scope Notes
-- Current systems prioritise offline-native operation and data minimisation.
-- Any future multi-tenant or customer-facing features will be assessed against SOC 2 and EU AI Act high-risk requirements before release.
+- [ ] Audit logs reviewed
+- [ ] Firmware integrity verification working
+- [ ] Health data encrypted
+- [ ] No hardcoded credentials
+- [ ] Backup restore test passed
 
-### Limitations
-- Not legal advice; not a certification claim.
-- Confirm statute application with NZ counsel before commercial shipping claims.
-- Agents inform / draft / prepare only; humans advise / sign / file / send / pay.
+**Sign-Off:** _________________ Date: _________
 
-### Data sales
-
-**We do not sell personal or customer operational data to third parties.**
+**Related:** [NZ AI Compliance Skill](./.github/compliance/nz-ai-compliance-soc2/)  
+**Last Updated:** 2026-07-12

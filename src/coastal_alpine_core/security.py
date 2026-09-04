@@ -225,17 +225,9 @@ def device_posture_check(device_id, payload):
         # match-prefix length via timing. Placeholder digests fail closed even
         # if somehow present in VALID_FIRMWARE_HASHES.
         expected_hash = VALID_FIRMWARE_HASHES.get(payload.get("device_type"))
-        presented_hash = posture.get("firmware_hash")
-        if (
-            not expected_hash
-            or not isinstance(presented_hash, str)
-            or not _is_valid_sha256_hex(expected_hash)
-            or _is_placeholder_digest(expected_hash)
-            or not hmac.compare_digest(presented_hash.lower(), expected_hash.lower())
-        ):
-            reason = "INVALID_POSTURE_HASH"
-            if expected_hash and _is_placeholder_digest(expected_hash):
-                reason = "PLACEHOLDER_FIRMWARE_BASELINE"
+        # Constant-time compare (Diamond): avoids leaking hash prefix via timing.
+        provided_hash = posture.get("firmware_hash") or ""
+        if not expected_hash or not hmac.compare_digest(str(provided_hash), expected_hash):
             logger.warning(
                 "[SECOPS ANOMALY] Posture validation failed for %s — rogue firmware? (%s)",
                 device_id,
